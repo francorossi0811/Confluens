@@ -1,0 +1,12 @@
+// Schema de Prisma de Confluens.
+// Modificarlo requiere avisar al equipo antes (ver AGENTS.md). Los modelos se definen en el Sprint Planning.
+// La URL de conexión se configura en prisma.config.ts.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
