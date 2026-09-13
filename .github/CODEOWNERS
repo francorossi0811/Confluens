@@ -1,0 +1,11 @@
+# Responsables de revisión por ruta. GitHub pide su aprobación en los PR que tocan esas rutas.
+# Reemplazar los placeholders por los usuarios reales de GitHub (@usuario) y descomentar.
+# La última regla que coincide es la que aplica.
+
+*                         @Juani-M @francorossi0811
+/apps/api/                @Juani-M @francorossi0811
+/apps/api/prisma/         @Juani-M @francorossi0811
+/apps/web/                @Juani-M @francorossi0811
+/packages/shared/         @Juani-M @francorossi0811
+/.github/                 @Juani-M @francorossi0811
+/docs/                    @Juani-M @francorossi0811
