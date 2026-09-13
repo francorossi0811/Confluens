@@ -2,10 +2,10 @@
 # Reemplazar los placeholders por los usuarios reales de GitHub (@usuario) y descomentar.
 # La última regla que coincide es la que aplica.
 
-# *                         @usuario-1 @usuario-2
-# /apps/api/                @usuario-api
-# /apps/api/prisma/         @usuario-api @usuario-2
-# /apps/web/                @usuario-web
-# /packages/shared/         @usuario-api @usuario-web
-# /.github/                 @usuario-1
-# /docs/                    @usuario-1
+*                         @Juani-M @francorossi0811
+/apps/api/                @Juani-M @francorossi0811
+/apps/api/prisma/         @Juani-M @francorossi0811
+/apps/web/                @Juani-M @francorossi0811
+/packages/shared/         @Juani-M @francorossi0811
+/.github/                 @Juani-M @francorossi0811
+/docs/                    @Juani-M @francorossi0811
