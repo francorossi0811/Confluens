@@ -16,10 +16,10 @@
 Usamos cuatro ramas permanentes:
 
 - `equipo-1` y `equipo-2`: cada equipo pushea ahí todas sus HU en curso.
-- `develop`: recibe los PRs de las ramas de equipo, después de revisión y CI en verde.
+- `develop`: recibe los PRs de las ramas de equipo con el CI en verde.
 - `main`: recibe PRs desde `develop` cuando lo integrado está probado.
 
-`develop` y `main` están protegidas en GitHub: solo aceptan PRs con los checks del CI en verde, la rama actualizada y 1 aprobación, sin force push ni borrado. Los PRs se mergean con merge commit y las ramas de equipo no se borran. Las ramas de equipo se actualizan con `merge` de `develop`, nunca con rebase.
+`develop` y `main` están protegidas en GitHub: solo aceptan PRs con los checks del CI en verde, y la rama actualizada, sin force push ni borrado. No se exige aprobación de otra persona: quienes trabajan juntos en una rama ya revisaron ese código, y el propio equipo mergea su PR. Las ramas de equipo no tienen restricciones de push. Los PRs se mergean con merge commit y las ramas de equipo no se borran. Las ramas de equipo se actualizan con `merge` de `develop`, nunca con rebase.
 
 La trazabilidad con Jira pasa de las ramas a los commits: cada commit lleva `tipo(HU-XX)`.
 
@@ -27,18 +27,17 @@ La trazabilidad con Jira pasa de las ramas a los commits: cada commit lleva `tip
 
 ### Positivas
 
-- Menos ramas y PRs que administrar; la revisión se hace por lote de HU.
+- Menos ramas y PRs que administrar, sin esperar aprobaciones de terceros.
 - Cada equipo integra a su ritmo sin bloquear al otro.
 - `develop` y `main` quedan protegidas: nadie puede romperlas con un push directo.
 
 ### Negativas
 
-- Los PRs de equipo a `develop` son más grandes y cuesta más revisarlos.
+- Sin aprobación obligatoria, el CI es el único control automático antes de `develop` y `main`: un error de lógica que los tests no cubren puede llegar a producción.
 - Una HU a medio terminar en la rama del equipo viaja a `develop` junto con las terminadas si se abre el PR en ese momento. Hay que coordinar cuándo integrar.
 - Si los equipos tardan en traer `develop` a su rama, los conflictos crecen.
 - No se puede aislar o revertir una HU sola con facilidad: sus commits están mezclados con los de otras HU de la misma rama.
 
 ### Acciones derivadas
 
-- Definir en el Sprint Planning qué integrantes forman cada equipo (tabla en `AGENTS.md`).
 - Mergear los PRs con "Create a merge commit".

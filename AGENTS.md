@@ -200,15 +200,10 @@ El repo tiene **cuatro ramas permanentes**. No se crean ramas por historia, ni p
 | ---------- | ----------------------------------------------- | ----------------------------------------------------- |
 | `main`     | Lo desplegado en producción (Vercel y Render)   | Solo por PR desde `develop`. Protegida.               |
 | `develop`  | Integración de ambos equipos                    | Solo por PR desde `equipo-1` o `equipo-2`. Protegida. |
-| `equipo-1` | Trabajo del equipo 1, con todas sus HU en curso | Push directo de los integrantes del equipo 1          |
-| `equipo-2` | Trabajo del equipo 2, con todas sus HU en curso | Push directo de los integrantes del equipo 2          |
+| `equipo-1` | Trabajo del equipo 1, con todas sus HU en curso | Push directo, sin restricciones                       |
+| `equipo-2` | Trabajo del equipo 2, con todas sus HU en curso | Push directo, sin restricciones                       |
 
-Integrantes de cada equipo (completar en el Sprint Planning):
-
-| Equipo   | Rama       | Integrantes |
-| -------- | ---------- | ----------- |
-| Equipo 1 | `equipo-1` | _a definir_ |
-| Equipo 2 | `equipo-2` | _a definir_ |
+La división de integrantes entre equipos la organiza el equipo; GitHub no restringe quién pushea a cada rama.
 
 Como una rama tiene varias HU a la vez, **la trazabilidad con Jira está en los commits**: cada commit referencia su HU.
 
@@ -224,10 +219,12 @@ Como una rama tiene varias HU a la vez, **la trazabilidad con Jira está en los 
 3. **Traer lo que integró el otro equipo** cada vez que `develop` cambie: `git fetch origin && git merge origin/develop`, resolver conflictos y pushear. **Nunca `rebase` ni `push --force`** sobre una rama de equipo: la comparten varias personas.
 4. **Integrar a `develop`** cuando un grupo de HU está terminado: abrir un PR `equipo-N → develop` con la plantilla, listando todas las HU incluidas. GitHub exige:
    - CI en verde (Install, Typecheck, Lint, Build, Test);
-   - la rama actualizada con `develop`;
-   - al menos 1 aprobación (idealmente de alguien del otro equipo).
+   - la rama actualizada con `develop`.
+
+   No se exige aprobación de otra persona: el equipo revisa su propio trabajo y mergea el PR cuando el CI está en verde.
+
 5. **Mergear con "Create a merge commit"**, no con squash ni rebase: la rama del equipo sigue viva después del merge y así conserva un historial común con `develop`. **La rama no se borra.**
-6. **Pasar a producción** cuando `develop` está probado (por ejemplo, al cierre del sprint): PR `develop → main`, con CI en verde y 1 aprobación, y merge commit.
+6. **Pasar a producción** cuando `develop` está probado (por ejemplo, al cierre del sprint): PR `develop → main`, con CI en verde y merge commit.
 
 Coordinación entre equipos: si una HU necesita tocar archivos que suele tocar el otro equipo (`schema.prisma`, `packages/shared`, configuración compartida), avisar antes para evitar conflictos.
 
@@ -254,7 +251,7 @@ Una historia está terminada cuando:
 6. Si cambió el modelo de datos, el cambio fue acordado con el equipo y la migración de Prisma está incluida.
 7. No hay `console.log` de depuración, código comentado ni `TODO` sin historia asociada.
 8. La documentación afectada está actualizada (este archivo, ADR, glosario).
-9. El PR de la rama del equipo fue revisado y aprobado por al menos otro integrante y está mergeado en `develop`.
+9. El PR de la rama del equipo está mergeado en `develop`.
 10. La historia está movida a Done en Jira.
 
 ## Límites para agentes de IA
@@ -272,7 +269,7 @@ Una historia está terminada cuando:
 
 - Tocar la carpeta `.claude/` de la raíz (skills del equipo) ni commitear `.claude/settings.local.json`.
 - Commitear `.env` ni credenciales, ni poner valores reales en `.env.example`.
-- Pushear a `main` o `develop`, pushear a la rama del otro equipo, crear ramas nuevas, forzar push (`--force`) o saltear hooks con `--no-verify`.
+- Pushear a `main` o `develop`, crear ramas nuevas, forzar push (`--force`) o saltear hooks con `--no-verify`.
 - Hacer `rebase` de una rama de equipo ya pusheada: para actualizarla se usa `merge` de `develop`.
 - Editar código generado (`apps/api/src/generated/`) ni migraciones ya aplicadas.
 - Desactivar reglas de ESLint o de TypeScript (`// eslint-disable`, `@ts-ignore`, `any`) para que algo compile, sin explicarlo en el PR.
