@@ -1,6 +1,8 @@
-## Historia de usuario
+## Historias de usuario
 
-Resuelve: HU-XX — <!-- título de la historia en Jira -->
+<!-- PR de equipo-1/equipo-2 → develop: listar todas las HU incluidas. PR develop → main: listar las HU que se liberan. -->
+
+- HU-XX — <!-- título de la historia en Jira -->
 
 ## Qué cambió
 
@@ -16,7 +18,7 @@ Resuelve: HU-XX — <!-- título de la historia en Jira -->
 
 ## Checklist de Definition of Done
 
-- [ ] Cumple todos los criterios de aceptación de la HU
+- [ ] Cada HU listada cumple todos sus criterios de aceptación
 - [ ] `npm run typecheck`, `npm run lint`, `npm run test` y `npm run build` pasan (CI en verde)
 - [ ] La lógica de negocio nueva tiene tests
 - [ ] Los endpoints nuevos usan el formato estándar de respuesta y están registrados en OpenAPI
@@ -25,4 +27,5 @@ Resuelve: HU-XX — <!-- título de la historia en Jira -->
 - [ ] No se agregaron dependencias sin acordarlo con el equipo
 - [ ] Sin `console.log` de depuración ni código comentado
 - [ ] Documentación actualizada si cambió una convención (`AGENTS.md`, ADR, glosario)
-- [ ] La rama y los commits referencian la HU (`feat/HU-XX-...`, `feat(HU-XX): ...`)
+- [ ] Los commits referencian su HU (`feat(HU-XX): ...`)
+- [ ] La rama del equipo está actualizada con `develop` (sin conflictos)
