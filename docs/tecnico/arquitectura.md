@@ -23,15 +23,21 @@ tipos de `shared`.
 
 ## Capas en `apps/api`
 
+Cada módulo del dominio vive en su carpeta, `src/modulos/<modulo>/` (plural, kebab-case), con un
+archivo por capa:
+
 ```
-routes/      → definición de endpoints y middleware
-controllers/ → parseo del request, llamada al servicio, forma de la respuesta
-services/    → lógica de negocio. Es donde viven las reglas RN-xx.
-repositories/→ acceso a datos vía Prisma
+<modulo>.rutas.ts        → definición de endpoints y middleware
+<modulo>.controlador.ts  → parseo del request, llamada al servicio, forma de la respuesta
+<modulo>.servicio.ts     → lógica de negocio. Es donde viven las reglas RN-xx.
+<modulo>.repositorio.ts  → acceso a datos vía Prisma
 ```
 
 Regla: los controllers no consultan Prisma directamente y los services no conocen `req` ni `res`.
 La lógica de negocio tiene que poder testearse sin levantar el servidor.
+
+La carpeta por módulo es también el límite de trabajo entre grupos: cada grupo edita solo sus
+módulos (ver `AGENTS.md`).
 
 ## Stack
 
