@@ -11,6 +11,7 @@ git clone https://github.com/francorossi0811/Confluens.git && cd Confluens
 cp .env.example .env
 npm install
 npm run db:up && npm run prisma:deploy -w @confluens/api
+npm run prisma:seed -w @confluens/api
 npm run dev
 ```
 
@@ -20,5 +21,5 @@ npm run dev
 
 ## Documentación
 
-- **[AGENTS.md](AGENTS.md)**: stack, estructura, convenciones, Definition of Done y reglas para agentes de IA. Leer antes de contribuir.
-- [docs/](docs/index.md): ADR, glosario y documentación del equipo (vault de Obsidian).
+- **[AGENTS.md](AGENTS.md)**: stack, ramas y commits, formato de la API, límites entre grupos y reglas para agentes de IA. Leer antes de contribuir.
+- [docs/](docs/README.md): dominio, sprint en curso, modelo de datos, convenciones y tarifario. El README indica qué abrir según la tarea.
