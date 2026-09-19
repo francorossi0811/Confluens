@@ -12,6 +12,7 @@ export default defineConfig({
   schema: 'prisma/schema.prisma',
   migrations: {
     path: 'prisma/migrations',
+    seed: 'tsx prisma/seed.ts',
   },
   datasource: {
     // El CLI (migraciones) necesita conexión directa: en Neon, DIRECT_URL es la URL sin pooling.

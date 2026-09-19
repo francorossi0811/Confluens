@@ -1,0 +1,151 @@
+# Backlog — Confluens
+
+Las 43 historias del Product Backlog, alineadas con el Seguimiento del Proyecto.
+Una línea por historia: para los criterios de aceptación completos ver el archivo del sprint
+en curso. **Jira es la fuente de verdad del estado**; este archivo solo dice qué existe y dónde cae.
+
+Total: 43 historias · 229 story points · 11 Epics
+
+## EPIC-01 — Gestión de Salones
+
+RG-01. Gestionar los salones de eventos y su disponibilidad.  ·  3 historias  ·  11 pts  ·  Must have
+
+| HU | Título | RD | Pts | Sprint | Actor |
+|---|---|---|---|---|---|
+| HU-01 | Consultar salones y su capacidad | RD-01.2 | 3 | 1 | Responsable de Eventos |
+| HU-02 | Registrar las distribuciones posibles de un salón | RD-01.1 | 5 | 4 | Responsable de Eventos |
+| HU-03 | Modificar los datos de un salón | RD-01.3 | 3 | 4 | Responsable de Eventos |
+
+## EPIC-02 — Gestión de Clientes
+
+RG-02. Gestionar los clientes de la organización.  ·  5 historias  ·  16 pts  ·  Must have
+
+| HU | Título | RD | Pts | Sprint | Actor |
+|---|---|---|---|---|---|
+| HU-04 | Registrar un cliente | RD-02.1 | 3 | 2 | Responsable de Eventos |
+| HU-05 | Consultar clientes | RD-02.4 | 3 | 3 | Responsable de Eventos |
+| HU-06 | Modificar los datos de un cliente | RD-02.2 | 2 | 3 | Responsable de Eventos |
+| HU-07 | Consultar el historial de eventos de un cliente | RD-02.3 | 5 | 3 | Responsable de Eventos |
+| HU-08 | Registrar la baja de un cliente por inactividad | RD-02.5 | 3 | 6 | Responsable de Eventos |
+
+## EPIC-03 — Gestión de Presupuestos
+
+RG-03. Gestionar los presupuestos.  ·  6 historias  ·  34 pts  ·  Must have
+
+| HU | Título | RD | Pts | Sprint | Actor |
+|---|---|---|---|---|---|
+| HU-09 | Generar un presupuesto estimado | RD-03.1 | 13 | 1 | Responsable de Eventos |
+| HU-10 | Consultar el listado de presupuestos | RD-03.2 | 3 | 2 | Responsable de Eventos |
+| HU-11 | Consultar el detalle de un presupuesto | RD-03.4 | 3 | 2 | Responsable de Eventos |
+| HU-12 | Modificar un presupuesto | RD-03.3 | 8 | 2 | Responsable de Eventos |
+| HU-13 | Registrar un presupuesto confirmado | RD-03.5 | 5 | 2 | Responsable de Eventos |
+| HU-45 | Registrar un presupuesto cancelado | RD-03.6 | 2 | 3 | Responsable de Eventos |
+
+## EPIC-04 — Gestión de Reservas de Eventos
+
+RG-04. Gestionar eventos.  ·  8 historias  ·  62 pts  ·  Must have
+
+| HU | Título | RD | Pts | Sprint | Actor |
+|---|---|---|---|---|---|
+| HU-14 | Registrar un evento en consulta | RD-04.2 | 5 | 1 | Cliente |
+| HU-15 | Registrar la reserva de un evento | RD-04.1 | 13 | 1 | Responsable de Eventos |
+| HU-16 | Modificar los datos de un evento | RD-04.3 | 5 | 4 | Responsable de Eventos |
+| HU-17 | Consultar el calendario de eventos | RD-04.5 | 13 | 2 | Responsable de Eventos |
+| HU-18 | Reasignar un evento a otro salón | RD-04.3 / RD-04.5 | 8 | 4 | Responsable de Eventos |
+| HU-19 | Reutilizar la configuración de un evento anterior | RD-04.4 | 8 | 3 | Responsable de Eventos |
+| HU-20 | Registrar un evento como pagado | RD-04.6 | 5 | 4 | Responsable de Finanzas |
+| HU-44 | Registrar un evento cancelado | RD-04.7 | 5 | 3 | Responsable de Eventos |
+
+## EPIC-05 — Reportes e Indicadores
+
+RG-05. Gestionar reportes e indicadores del negocio.  ·  3 historias  ·  16 pts  ·  Should have
+
+| HU | Título | RD | Pts | Sprint | Actor |
+|---|---|---|---|---|---|
+| HU-21 | Generar el reporte de ingresos | RD-05.1 | 8 | 6 | Gerente General |
+| HU-22 | Generar el reporte de servicios contratados | RD-05.2 | 5 | 4 | Gerente General |
+| HU-43 | Emitir el presupuesto confirmado | RD-05.3 | 3 | 5 | Responsable de Eventos |
+
+## EPIC-06 — Notificaciones y Alertas
+
+RG-06. Gestionar las notificaciones y alertas del sistema.  ·  2 historias  ·  13 pts  ·  Should have
+
+| HU | Título | RD | Pts | Sprint | Actor |
+|---|---|---|---|---|---|
+| HU-23 | Notificar el próximo vencimiento de un pago | RD-06.1 | 8 | 6 | Responsable de Finanzas |
+| HU-24 | Enviar el presupuesto o resumen del evento por WhatsApp | RD-06.2 | 5 | 5 | Responsable de Eventos |
+
+## EPIC-07 — Auditoría de Cambios
+
+RG-07. Administrar la auditoría de cambios del sistema.  ·  1 historias  ·  8 pts  ·  Must have
+
+| HU | Título | RD | Pts | Sprint | Actor |
+|---|---|---|---|---|---|
+| HU-25 | Registrar el usuario y la fecha de cada modificación | RD-07.1 | 8 | 5 | Sistema |
+
+## EPIC-08 — Administración de Accesos
+
+RG-08. Administrar los accesos al sistema.  ·  5 historias  ·  18 pts  ·  Must have
+
+| HU | Título | RD | Pts | Sprint | Actor |
+|---|---|---|---|---|---|
+| HU-27 | Autenticar a un usuario según su rol | RD-08.1 | 8 | 1 | Responsable de Eventos |
+| HU-28 | Registrar un usuario | RD-08.2 | 3 | 4 | Gerente General |
+| HU-29 | Consultar usuarios | RD-08.3 | 2 | 4 | Gerente General |
+| HU-30 | Modificar un usuario | RD-08.5 | 3 | 5 | Gerente General |
+| HU-31 | Dar de baja un usuario | RD-08.4 | 2 | 5 | Gerente General |
+
+## EPIC-09 — Gestión de Servicios
+
+RG-09. Gestionar servicios.  ·  4 historias  ·  23 pts  ·  Must have
+
+| HU | Título | RD | Pts | Sprint | Actor |
+|---|---|---|---|---|---|
+| HU-32 | Registrar un servicio | RD-09.1 | 5 | 1 | Responsable de Eventos |
+| HU-33 | Modificar un servicio | RD-09.2 | 3 | 4 | Responsable de Eventos |
+| HU-34 | Configurar el incremento mensual automático de precios | RD-09.3 | 13 | 5 | Gerente General |
+| HU-35 | Dar de baja un servicio | RD-09.4 | 2 | 6 | Responsable de Eventos |
+
+## EPIC-10 — Gestión de Medios de Pago
+
+RG-10. Gestionar medios de pago.  ·  4 historias  ·  7 pts  ·  Must have
+
+| HU | Título | RD | Pts | Sprint | Actor |
+|---|---|---|---|---|---|
+| HU-36 | Registrar un medio de pago | RD-10.1 | 2 | 3 | Responsable de Finanzas |
+| HU-37 | Consultar los medios de pago | RD-10.4 | 1 | 3 | Responsable de Finanzas |
+| HU-38 | Modificar un medio de pago | RD-10.2 | 2 | 4 | Responsable de Finanzas |
+| HU-39 | Dar de baja un medio de pago | RD-10.3 | 2 | 6 | Responsable de Finanzas |
+
+## EPIC-11 — Gestión de Pagos y Cobros
+
+RG-11. Gestionar los pagos y cobros de los eventos.  ·  2 historias  ·  21 pts  ·  Must have
+
+| HU | Título | RD | Pts | Sprint | Actor |
+|---|---|---|---|---|---|
+| HU-40 | Registrar el pago de un evento | RD-11.1 | 13 | 2 | Responsable de Finanzas |
+| HU-41 | Consultar el estado de cuenta de un evento | RD-11.1 | 8 | 3 | Responsable de Finanzas |
+
+## Distribución por sprint
+
+| Sprint | Historias | Pts |
+|---|---|---|
+| 1 | HU-01 · HU-09 · HU-14 · HU-15 · HU-27 · HU-32 | 47 |
+| 2 | HU-04 · HU-10 · HU-11 · HU-12 · HU-13 · HU-17 · HU-40 | 48 |
+| 3 | HU-05 · HU-06 · HU-07 · HU-45 · HU-19 · HU-44 · HU-36 · HU-37 · HU-41 | 36 |
+| 4 | HU-02 · HU-03 · HU-16 · HU-18 · HU-20 · HU-22 · HU-28 · HU-29 · HU-33 · HU-38 | 41 |
+| 5 | HU-43 · HU-24 · HU-25 · HU-30 · HU-31 · HU-34 | 34 |
+| 6 | HU-08 · HU-21 · HU-23 · HU-35 · HU-39 | 23 |
+
+Los puntos son los del backlog general. Cada Sprint Planning re-estima según el alcance real:
+el Sprint 1 quedó en 25 puntos tras re-estimar HU-09 y HU-15.
+
+## Historias consolidadas
+
+Dos historias de la versión anterior del backlog no figuran por separado; su alcance está
+cubierto como criterios de aceptación:
+
+- **HU-26** Consultar el registro de auditoría → criterio 5 de HU-25.
+- **HU-42** Confirmar la reserva mediante el registro de la seña → criterio 4 de HU-15 y criterio 3 de HU-40.
+
+Los códigos HU-26 y HU-42 no se reasignan.
