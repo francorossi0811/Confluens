@@ -9,5 +9,6 @@ export * from './linea-presupuesto.esquema.js';
 export * from './presupuesto.esquema.js';
 export * from './salon.esquema.js';
 export * from './servicio.esquema.js';
+export * from './sesion.esquema.js';
 export * from './solicitud.esquema.js';
 export * from './usuario.esquema.js';
