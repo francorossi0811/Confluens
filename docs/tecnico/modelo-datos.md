@@ -40,13 +40,13 @@ enum Rol {
 | `Salon` | Nombre, capacidad máxima, superficie, precio de referencia jornada completa y media jornada. |
 | `Distribucion` | Pertenece a un salón. Nombre único por salón, capacidad ≤ capacidad del salón. |
 | `Servicio` | Nombre único, descripción, unidad de medida, precio, si se cobra por persona, si es tercerizado, activo. |
-| `Solicitud` | Llega del canal público. `clienteId` **nullable** desde el día 1. Guarda los datos de contacto que cargó el formulario. Puede descartarse sin convertirse en evento. |
-| `Evento` | Cliente, salón, distribución, fecha, horario desde/hasta, cantidad de personas, estado, modalidad salón-restaurante. |
+| `Solicitud` | Llega del canal público. `clienteId` **nullable** desde el día 1. Guarda los datos de contacto que cargó el formulario, la fecha deseada y la cantidad estimada de personas. Puede descartarse sin convertirse en evento: `descartada` (booleano) y `eventoId` (nullable, 1-1) con el evento `EnConsulta` en que se convirtió. |
+| `Evento` | Cliente, salón, distribución, fecha, horario desde/hasta (`inicio`/`fin`), cantidad de personas, estado, modalidad salón-restaurante. El salón es obligatorio desde `EnConsulta`; la distribución y el horario pueden completarse después (ver restricciones). |
 | `Presupuesto` | Pertenece a un evento. Estado, fecha de emisión, total. Un evento puede tener varios. |
-| `LineaPresupuesto` | Servicio, cantidad, precio unitario congelado, subtotal. |
+| `LineaPresupuesto` | Servicio, descripción, cantidad, precio unitario congelado, subtotal. El precio del salón va como una línea más, con servicio `null`. |
 | `Pago` | Evento, fecha, monto, medio de pago. |
 | `MedioPago` | Efectivo, tarjeta, a la habitación. Baja lógica. |
-| `AuditLog` | Usuario, fecha, entidad, id, valor anterior, valor nuevo. Inmutable. |
+| `AuditLog` | Usuario, fecha, entidad, id, valor anterior, valor nuevo. Inmutable. Usuario `null` cuando actúa el Sistema (`SYS`). Tabla `audit_log`. |
 
 ## Por qué `Usuario` y `Cliente` van separados
 
@@ -74,6 +74,15 @@ ALTER TABLE "Evento" ADD CONSTRAINT evento_sin_solapamiento
 
 El `WHERE` es importante: los eventos en `EnConsulta` **no** bloquean el salón, y los
 `Cancelado` tampoco.
+
+Como `inicio` y `fin` son opcionales mientras el evento está en `EnConsulta`, la misma migración
+agrega un CHECK que los exige en cualquier otro estado. Sin él, un `tsrange` con límites `NULL`
+sería infinito y bloquearía el salón para siempre:
+
+```sql
+ALTER TABLE "Evento" ADD CONSTRAINT evento_horario_obligatorio
+  CHECK (estado IN ('EnConsulta', 'Cancelado') OR ("inicio" IS NOT NULL AND "fin" IS NOT NULL));
+```
 
 Prisma no genera restricciones de exclusión, así que va como SQL crudo dentro de una migración.
 
