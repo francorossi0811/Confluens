@@ -11,6 +11,7 @@ No leas esta carpeta entera. Abrí solo lo que la tarea necesita.
 | Si vas a… | Leé |
 |---|---|
 | Escribir cualquier código | `/AGENTS.md` (raíz) + `producto/dominio.md` |
+| Crear archivos, nombrar cosas o correr comandos | + `tecnico/convenciones.md` |
 | Implementar una historia del sprint en curso | + `producto/sprint-01.md` |
 | Tocar el modelo de datos o los enums | + `tecnico/modelo-datos.md` |
 | Cargar datos de prueba o precios | + `negocio/tarifario-2026.md` |
@@ -33,6 +34,7 @@ docs/
 ├── tecnico/
 │   ├── arquitectura.md          Monorepo, capas y límites entre workspaces.
 │   ├── modelo-datos.md          Entidades, enums y la restricción de no solapamiento.
+│   ├── convenciones.md          Nombres, archivos, schemas compartidos y comandos.
 │   └── adr/                     Decisiones técnicas: 0001 (stack) + template.md.
 └── negocio/
     └── tarifario-2026.md        Salones, capacidades y precios reales. Base de los seeds.
