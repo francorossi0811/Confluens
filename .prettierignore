@@ -6,4 +6,5 @@ apps/api/src/generated/
 apps/api/prisma/migrations/
 # Skills de agentes: los mantiene otro integrante, no se reformatean.
 .claude/
-docs/.obsidian/
+# Documentación: la edita todo el equipo (no solo quienes programan); no se reformatea.
+docs/
