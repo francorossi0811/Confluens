@@ -1,6 +1,6 @@
-## Historias de usuario
+## HU que resuelve
 
-<!-- PR de equipo-1/equipo-2 → develop: listar todas las HU incluidas. PR develop → main: listar las HU que se liberan. -->
+<!-- Una HU por PR. Link a Jira. Si no resuelve una HU (chore, ci, docs), explicar por qué. -->
 
 - HU-XX — <!-- título de la historia en Jira -->
 
@@ -16,16 +16,12 @@
 
 -
 
-## Checklist de Definition of Done
+## Definición de Terminado
 
-- [ ] Cada HU listada cumple todos sus criterios de aceptación
-- [ ] `npm run typecheck`, `npm run lint`, `npm run test` y `npm run build` pasan (CI en verde)
-- [ ] La lógica de negocio nueva tiene tests
-- [ ] Los endpoints nuevos usan el formato estándar de respuesta y están registrados en OpenAPI
-- [ ] Los schemas de Zod y tipos compartidos están en `packages/shared`
-- [ ] Si cambió `schema.prisma`: el cambio fue acordado con el equipo y la migración está incluida
-- [ ] No se agregaron dependencias sin acordarlo con el equipo
-- [ ] Sin `console.log` de depuración ni código comentado
-- [ ] Documentación actualizada si cambió una convención (`AGENTS.md`, ADR, glosario)
-- [ ] Los commits referencian su HU (`feat(HU-XX): ...`)
-- [ ] La rama del equipo está actualizada con `develop` (sin conflictos)
+<!-- La de docs/producto/sprint-01.md. Marcar solo lo que efectivamente se cumple. -->
+
+- [ ] Los criterios de aceptación de la HU pasan como tests automatizados
+- [ ] El código fue revisado por otro integrante en este pull request
+- [ ] El CI corre sin errores (typecheck, lint, build y test)
+- [ ] La funcionalidad está desplegada y accesible
+- [ ] Las operaciones que modifican datos quedan auditadas (`AuditLog`)
