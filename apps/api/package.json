@@ -1,0 +1,37 @@
+{
+  "name": "@confluens/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "API REST de Confluens (Express + Prisma)",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --conditions=development --env-file=../../.env src/servidor.ts",
+    "build": "prisma generate && tsc -p tsconfig.build.json",
+    "start": "node dist/servidor.js",
+    "typecheck": "prisma generate && tsc --noEmit",
+    "lint": "eslint .",
+    "test": "prisma generate && vitest run",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:seed": "prisma db seed",
+    "prisma:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@asteasolutions/zod-to-openapi": "9.1.0",
+    "@confluens/shared": "0.0.0",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "express": "4.22.2",
+    "swagger-ui-express": "5.0.1",
+    "zod": "4.6.4"
+  },
+  "devDependencies": {
+    "@types/express": "4.17.25",
+    "@types/supertest": "7.2.1",
+    "@types/swagger-ui-express": "4.1.8",
+    "prisma": "7.10.0",
+    "supertest": "7.2.2",
+    "tsx": "4.23.13"
+  }
+}

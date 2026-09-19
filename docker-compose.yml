@@ -1,0 +1,23 @@
+# Base de datos local para desarrollo. En producción se usa Neon.
+services:
+  db:
+    image: postgres:16.15-alpine
+    container_name: confluens-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-confluens}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-confluens}
+      POSTGRES_DB: ${POSTGRES_DB:-confluens}
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db-data:

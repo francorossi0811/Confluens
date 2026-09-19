@@ -1,0 +1,36 @@
+# Dependencias
+node_modules/
+
+# Builds
+dist/
+*.tsbuildinfo
+
+# Prisma (cliente generado)
+apps/api/src/generated/
+
+# Entorno
+.env
+.env.*
+!.env.example
+
+# Tests
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operativo y editores
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Vercel
+.vercel/
+
+# Obsidian (configuración local del vault en docs/)
+docs/.obsidian/workspace*.json
+
+# Claude Code (configuración personal)
+.claude/settings.local.json
