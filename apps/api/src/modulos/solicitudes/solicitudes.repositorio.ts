@@ -16,9 +16,13 @@ export async function listar() {
 // clienteId queda null: en el Sprint 1 el formulario público no requiere autenticación (ver
 // esquemaCrearSolicitud en packages/shared). La ficha de cliente la crea el Responsable de
 // Eventos al tomar la solicitud, fuera del alcance de HU-14.
+//
+// fechaDeseada llega como string "AAAA-MM-DD" (esquemaFecha = z.iso.date()): Prisma con el
+// adapter-pg exige un DateTime ISO-8601 completo incluso para columnas @db.Date y rechaza la
+// fecha "corta" con PrismaClientValidationError, por eso se convierte acá.
 export async function crear(datos: CrearSolicitud) {
   return prisma.solicitud.create({
-    data: { ...datos, clienteId: null },
+    data: { ...datos, fechaDeseada: new Date(datos.fechaDeseada), clienteId: null },
   });
 }
 
