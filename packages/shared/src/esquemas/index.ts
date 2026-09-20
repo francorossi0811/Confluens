@@ -3,6 +3,7 @@
 export * from './audit-log.esquema.js';
 export * from './cliente.esquema.js';
 export * from './comunes.esquema.js';
+export * from './crear-presupuesto.esquema.js';
 export * from './distribucion.esquema.js';
 export * from './evento.esquema.js';
 export * from './linea-presupuesto.esquema.js';
