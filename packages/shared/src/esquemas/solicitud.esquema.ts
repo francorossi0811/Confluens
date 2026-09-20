@@ -3,14 +3,16 @@ import { z } from 'zod';
 import { esquemaFecha, esquemaFechaHora, esquemaId } from './comunes.esquema.js';
 
 // clienteId es null mientras el formulario no requiera autenticación (Sprint 1).
+// Mensajes en español en los campos de contacto: llegan directo al formulario público (HU-14,
+// criterio 5), a diferencia de campos internos donde el error genérico de Zod alcanza.
 export const esquemaSolicitud = z.object({
   id: esquemaId,
   clienteId: esquemaId.nullable(),
-  nombre: z.string().min(1),
-  telefono: z.string().min(1),
-  correo: z.email(),
+  nombre: z.string().min(1, 'Ingresá tu nombre y apellido'),
+  telefono: z.string().min(1, 'Ingresá un teléfono de contacto'),
+  correo: z.email('Ingresá un correo válido'),
   fechaDeseada: esquemaFecha,
-  cantidadPersonas: z.number().int().positive(), // estimada
+  cantidadPersonas: z.number().int().positive('Ingresá una cantidad mayor a 0'), // estimada
   descartada: z.boolean(),
   eventoId: esquemaId.nullable(), // evento EnConsulta en el que se convirtió
   creadoEn: esquemaFechaHora,
