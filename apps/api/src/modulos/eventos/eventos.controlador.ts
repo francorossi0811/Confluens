@@ -1,0 +1,39 @@
+import type { EventoDetallado, ReservarEvento, RespuestaExito } from '@confluens/shared';
+import type { Request, Response } from 'express';
+
+import {
+  cancelarEvento,
+  obtenerDetalle,
+  registrarSena,
+  reservarEvento,
+} from './eventos.servicio.js';
+
+// req.params ya validado por validar({ params: esquemaIdParam }) en eventos.rutas.ts.
+export async function obtener(req: Request, res: Response): Promise<void> {
+  const id = Number(req.params.id);
+  const evento = await obtenerDetalle(id);
+  const cuerpo: RespuestaExito<EventoDetallado> = { data: evento as unknown as EventoDetallado };
+  res.status(200).json(cuerpo);
+}
+
+// req.body ya validado por validar({ body: esquemaReservarEvento }) en eventos.rutas.ts.
+export async function reservar(req: Request, res: Response): Promise<void> {
+  const id = Number(req.params.id);
+  const evento = await reservarEvento(id, req.body as ReservarEvento);
+  const cuerpo: RespuestaExito<EventoDetallado> = { data: evento as unknown as EventoDetallado };
+  res.status(200).json(cuerpo);
+}
+
+export async function marcarSena(req: Request, res: Response): Promise<void> {
+  const id = Number(req.params.id);
+  const evento = await registrarSena(id);
+  const cuerpo: RespuestaExito<EventoDetallado> = { data: evento as unknown as EventoDetallado };
+  res.status(200).json(cuerpo);
+}
+
+export async function cancelar(req: Request, res: Response): Promise<void> {
+  const id = Number(req.params.id);
+  const evento = await cancelarEvento(id);
+  const cuerpo: RespuestaExito<EventoDetallado> = { data: evento as unknown as EventoDetallado };
+  res.status(200).json(cuerpo);
+}

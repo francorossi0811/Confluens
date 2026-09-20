@@ -30,6 +30,22 @@ export async function buscarServiciosPorIds(ids: number[], tx: Prisma.Transactio
   return tx.servicio.findMany({ where: { id: { in: ids } } });
 }
 
+// HU-15: si POST /presupuestos viene con solicitudId, se busca antes de escribir nada para poder
+// distinguir "no existe" (404) de "ya fue tomada" (409), igual que buscarSalon/buscarServiciosPorIds.
+export async function buscarSolicitud(id: number, tx: Prisma.TransactionClient = prisma) {
+  return tx.solicitud.findUnique({ where: { id } });
+}
+
+// Vincula la Solicitud original al Evento recién creado, para que el RE vea en el detalle los
+// datos de contacto y del formulario con los que el cliente pidió la consulta.
+export async function vincularSolicitudAEvento(
+  solicitudId: number,
+  eventoId: number,
+  tx: Prisma.TransactionClient = prisma,
+) {
+  return tx.solicitud.update({ where: { id: solicitudId }, data: { eventoId } });
+}
+
 export async function crearEvento(
   datos: { clienteId: number; salonId: number; fecha: Date; cantidadPersonas: number },
   tx: Prisma.TransactionClient = prisma,
@@ -76,6 +92,8 @@ export type PresupuestosRepositorio = {
   crearCliente: typeof crearCliente;
   buscarSalon: typeof buscarSalon;
   buscarServiciosPorIds: typeof buscarServiciosPorIds;
+  buscarSolicitud: typeof buscarSolicitud;
+  vincularSolicitudAEvento: typeof vincularSolicitudAEvento;
   crearEvento: typeof crearEvento;
   crearPresupuestoConLineas: typeof crearPresupuestoConLineas;
   crearEnTransaccion: typeof crearEnTransaccion;

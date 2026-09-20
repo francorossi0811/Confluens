@@ -33,6 +33,10 @@ export const esquemaCrearPresupuesto = z.object({
   tipoJornada: esquemaTipoJornada,
   // Puede venir vacío: un presupuesto solo con el salón es válido.
   servicios: z.array(esquemaServicioSeleccionado).default([]),
+  // HU-15: si viene, vincula Solicitud.eventoId al evento recién creado (el RE "tomó" esa
+  // solicitud). Opcional porque el RE también puede armar un presupuesto sin partir de una
+  // solicitud existente.
+  solicitudId: esquemaId.optional(),
 });
 export type CrearPresupuesto = z.infer<typeof esquemaCrearPresupuesto>;
 

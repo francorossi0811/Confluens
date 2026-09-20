@@ -32,6 +32,9 @@ interface LineaCalculada {
  * - Criterio 5: se toman Salon.precioJornadaCompleta/precioMediaJornada y Servicio.precio
  *   vigentes al momento del pedido (no hay versionado de precios en el Sprint 1).
  * - Criterio 6: el Presupuesto nace en Estimado (default del schema, no se fija acá).
+ * - HU-15: si `datos.solicitudId` viene, se vincula `Solicitud.eventoId` al evento recién creado
+ *   (el RE "tomó" esa solicitud), para que el detalle del evento muestre los datos originales del
+ *   formulario. Se valida antes de escribir nada que la solicitud exista y no esté ya tomada.
  */
 export async function generarPresupuesto(
   datos: CrearPresupuesto,
@@ -41,6 +44,14 @@ export async function generarPresupuesto(
   // Cliente ni un Evento huérfanos.
   const salon = await repo.buscarSalon(datos.salonId);
   if (!salon) throw ErrorApi.noEncontrado(`No existe el salón ${datos.salonId}`);
+
+  if (datos.solicitudId !== undefined) {
+    const solicitud = await repo.buscarSolicitud(datos.solicitudId);
+    if (!solicitud) throw ErrorApi.noEncontrado(`No existe la solicitud ${datos.solicitudId}`);
+    if (solicitud.eventoId !== null) {
+      throw ErrorApi.conflicto(`La solicitud ${datos.solicitudId} ya fue tomada`);
+    }
+  }
 
   const idsServicios = datos.servicios.map((s) => s.servicioId);
   const servicios = idsServicios.length > 0 ? await repo.buscarServiciosPorIds(idsServicios) : [];
@@ -107,6 +118,10 @@ export async function generarPresupuesto(
       },
       tx,
     );
+
+    if (datos.solicitudId !== undefined) {
+      await repo.vincularSolicitudAEvento(datos.solicitudId, evento.id, tx);
+    }
 
     return repo.crearPresupuestoConLineas(
       {

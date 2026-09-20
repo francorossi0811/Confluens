@@ -9,6 +9,8 @@ vi.mock('./presupuestos.repositorio.js', () => ({
   crearCliente: vi.fn(),
   buscarSalon: vi.fn(),
   buscarServiciosPorIds: vi.fn(),
+  buscarSolicitud: vi.fn(),
+  vincularSolicitudAEvento: vi.fn(),
   crearEvento: vi.fn(),
   crearPresupuestoConLineas: vi.fn(),
   // No hay transacción real en el test: se ejecuta el callback tal cual, cada función interna
@@ -21,6 +23,8 @@ const {
   crearCliente,
   buscarSalon,
   buscarServiciosPorIds,
+  buscarSolicitud,
+  vincularSolicitudAEvento,
   crearEvento,
   crearPresupuestoConLineas,
   crearEnTransaccion,
@@ -30,6 +34,8 @@ const buscarClientePorCorreoMock = vi.mocked(buscarClientePorCorreo);
 const crearClienteMock = vi.mocked(crearCliente);
 const buscarSalonMock = vi.mocked(buscarSalon);
 const buscarServiciosPorIdsMock = vi.mocked(buscarServiciosPorIds);
+const buscarSolicitudMock = vi.mocked(buscarSolicitud);
+const vincularSolicitudAEventoMock = vi.mocked(vincularSolicitudAEvento);
 const crearEventoMock = vi.mocked(crearEvento);
 const crearPresupuestoConLineasMock = vi.mocked(crearPresupuestoConLineas);
 const crearEnTransaccionMock = vi.mocked(crearEnTransaccion);
@@ -85,7 +91,23 @@ const eventoFixture = {
   fin: null,
   cantidadPersonas: 10,
   estado: 'EnConsulta' as const,
+  senaVenceEn: null,
+  senaRegistradaEn: null,
   modalidadSalonRestaurante: false,
+  creadoEn: new Date(),
+  actualizadoEn: new Date(),
+};
+
+const solicitudFixture = {
+  id: 7,
+  clienteId: null,
+  nombre: 'Marina Gómez',
+  telefono: '+54 9 351 555-1234',
+  correo: 'marina@example.com',
+  fechaDeseada: new Date('2026-11-15'),
+  cantidadPersonas: 10,
+  descartada: false,
+  eventoId: null,
   creadoEn: new Date(),
   actualizadoEn: new Date(),
 };
@@ -107,6 +129,8 @@ describe('POST /api/presupuestos', () => {
     crearClienteMock.mockReset();
     buscarSalonMock.mockReset();
     buscarServiciosPorIdsMock.mockReset();
+    buscarSolicitudMock.mockReset();
+    vincularSolicitudAEventoMock.mockReset();
     crearEventoMock.mockReset();
     crearPresupuestoConLineasMock.mockReset();
     crearEnTransaccionMock.mockClear();
@@ -257,5 +281,38 @@ describe('POST /api/presupuestos', () => {
     expect(respuesta.status).toBe(400);
     expect(respuesta.body.error.code).toBe('VALIDATION_ERROR');
     expect(buscarSalonMock).not.toHaveBeenCalled();
+  });
+
+  it('vincula la solicitud al evento creado cuando viene solicitudId (HU-15)', async () => {
+    buscarClientePorCorreoMock.mockResolvedValue(clienteFixture);
+    buscarSolicitudMock.mockResolvedValue(solicitudFixture);
+    vincularSolicitudAEventoMock.mockResolvedValue({
+      ...solicitudFixture,
+      eventoId: eventoFixture.id,
+    });
+
+    const respuesta = await request(app)
+      .post('/api/presupuestos')
+      .send({ ...bodyBase, solicitudId: solicitudFixture.id });
+
+    expect(respuesta.status).toBe(201);
+    expect(buscarSolicitudMock).toHaveBeenCalledWith(solicitudFixture.id);
+    expect(vincularSolicitudAEventoMock).toHaveBeenCalledWith(
+      solicitudFixture.id,
+      eventoFixture.id,
+      undefined,
+    );
+  });
+
+  it('responde 409 si la solicitud indicada ya fue tomada', async () => {
+    buscarSolicitudMock.mockResolvedValue({ ...solicitudFixture, eventoId: 999 });
+
+    const respuesta = await request(app)
+      .post('/api/presupuestos')
+      .send({ ...bodyBase, solicitudId: solicitudFixture.id });
+
+    expect(respuesta.status).toBe(409);
+    expect(respuesta.body.error.code).toBe('CONFLICT');
+    expect(crearEnTransaccionMock).not.toHaveBeenCalled();
   });
 });
