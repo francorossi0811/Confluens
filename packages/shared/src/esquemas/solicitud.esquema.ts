@@ -17,3 +17,17 @@ export const esquemaSolicitud = z.object({
   actualizadoEn: esquemaFechaHora,
 });
 export type Solicitud = z.infer<typeof esquemaSolicitud>;
+
+// Contrato de POST /solicitudes (HU-14): el formulario público solo manda datos de contacto,
+// fecha deseada y cantidad estimada. clienteId lo decide el servidor (null en Sprint 1, sin
+// autenticación); descartada y eventoId los administra el Responsable de Eventos después, al
+// tomar la solicitud — no vienen del formulario.
+export const esquemaCrearSolicitud = esquemaSolicitud.omit({
+  id: true,
+  clienteId: true,
+  descartada: true,
+  eventoId: true,
+  creadoEn: true,
+  actualizadoEn: true,
+});
+export type CrearSolicitud = z.infer<typeof esquemaCrearSolicitud>;
