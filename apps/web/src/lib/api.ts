@@ -1,41 +1,28 @@
-import type { RespuestaError, RespuestaExito } from '@confluens/shared';
+import type { RespuestaError } from '@confluens/shared';
 
-// Error tipado que envuelve el `error` del contrato {data}/{error} de la API
-// (ver AGENTS.md, "Formato de respuesta"), para que quien llame pueda mostrar
-// error.message directamente sin volver a parsear la respuesta.
-export class ErrorApiWeb extends Error {
-  readonly code: RespuestaError['error']['code'];
+// Vacía en desarrollo: Vite redirige /api a la API local (ver server.proxy en vite.config.ts).
+// En producción apunta al servicio de Render (ver VITE_API_URL en .env.example).
+const URL_BASE_API = import.meta.env.VITE_API_URL ?? '';
 
-  constructor(error: RespuestaError['error']) {
-    super(error.message);
-    this.name = 'ErrorApiWeb';
-    this.code = error.code;
+// Preserva el code/message que ya arma la API (packages/shared/src/api/respuesta.ts) para que la
+// UI pueda mostrar el mensaje real en vez de un genérico "algo salió mal".
+export class ErrorApiCliente extends Error {
+  constructor(
+    message: string,
+    public readonly code: string,
+  ) {
+    super(message);
+    this.name = 'ErrorApiCliente';
   }
 }
 
-/**
- * Wrapper de fetch para llamar a la API. `credentials: 'include'` es imprescindible
- * para HU-27: sin esto, el navegador no manda la cookie httpOnly de sesión en el
- * request, y todo endpoint protegido respondería 401 aunque el login haya sido
- * exitoso. path es relativo a /api (ej. 'auth/login').
- */
-export async function apiFetch<T>(path: string, opciones?: RequestInit): Promise<T> {
-  const respuesta = await fetch(`/api/${path}`, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...opciones?.headers },
-    ...opciones,
-  });
-
-  // 204 (ej. logout) no trae body: no hay nada que parsear.
-  if (respuesta.status === 204) {
-    return undefined as T;
-  }
-
-  const cuerpo = (await respuesta.json()) as RespuestaExito<T> | RespuestaError;
+export async function apiFetch<T>(ruta: string, opciones?: RequestInit): Promise<T> {
+  const respuesta = await fetch(`${URL_BASE_API}/api${ruta}`, opciones);
 
   if (!respuesta.ok) {
-    throw new ErrorApiWeb((cuerpo as RespuestaError).error);
+    const cuerpo = (await respuesta.json()) as RespuestaError;
+    throw new ErrorApiCliente(cuerpo.error.message, cuerpo.error.code);
   }
 
-  return (cuerpo as RespuestaExito<T>).data;
+  return (await respuesta.json()) as T;
 }
