@@ -17,7 +17,17 @@ export class ErrorApiCliente extends Error {
 }
 
 export async function apiFetch<T>(ruta: string, opciones?: RequestInit): Promise<T> {
-  const respuesta = await fetch(`${URL_BASE_API}/api${ruta}`, opciones);
+  // credentials: 'include' es lo que hace viajar la cookie de sesión de HU-27. Para el resto de
+  // los endpoints, que son del mismo origen, no cambia el comportamiento.
+  const respuesta = await fetch(`${URL_BASE_API}/api${ruta}`, {
+    credentials: 'include',
+    ...opciones,
+  });
+
+  // 204 (por ejemplo POST /auth/logout) no trae body: no hay nada que parsear.
+  if (respuesta.status === 204) {
+    return undefined as T;
+  }
 
   if (!respuesta.ok) {
     const cuerpo = (await respuesta.json()) as RespuestaError;

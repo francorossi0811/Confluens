@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import { rutasAuth } from './modulos/auth/auth.rutas.js';
 import { rutasEventos } from './modulos/eventos/eventos.rutas.js';
 import { rutasPresupuestos } from './modulos/presupuestos/presupuestos.rutas.js';
 import { rutasSalones } from './modulos/salones/salones.rutas.js';
@@ -12,5 +13,6 @@ export const rutasApi = Router();
 rutasApi.use('/eventos', rutasEventos);
 rutasApi.use('/presupuestos', rutasPresupuestos);
 rutasApi.use('/salud', rutasSalud);
+rutasApi.use('/auth', rutasAuth);
 rutasApi.use('/solicitudes', rutasSolicitudes);
 rutasApi.use('/salones', rutasSalones);

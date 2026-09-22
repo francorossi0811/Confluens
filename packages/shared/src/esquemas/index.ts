@@ -11,5 +11,6 @@ export * from './presupuesto.esquema.js';
 export * from './reservar-evento.esquema.js';
 export * from './salon.esquema.js';
 export * from './servicio.esquema.js';
+export * from './sesion.esquema.js';
 export * from './solicitud.esquema.js';
 export * from './usuario.esquema.js';

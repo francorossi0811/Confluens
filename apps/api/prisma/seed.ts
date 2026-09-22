@@ -1,7 +1,8 @@
-// Seed de salones, distribuciones y catálogo de servicios.
+// Seed de salones, distribuciones, catálogo de servicios y usuarios de prueba.
 // Fuente única: docs/negocio/tarifario-2026.md. Todos los precios en pesos, sin IVA (RN-05).
-// Es idempotente: se puede correr varias veces (upsert por nombre).
+// Es idempotente: se puede correr varias veces (upsert por nombre/email).
 // Uso: npm run prisma:seed -w @confluens/api
+import { hashearContrasena } from '../src/lib/contrasena.js';
 import { prisma } from '../src/lib/prisma.js';
 
 interface SeedSalon {
@@ -244,6 +245,34 @@ const SERVICIOS: SeedServicio[] = [
   ...ALMUERZO_CENA,
 ];
 
+interface SeedUsuario {
+  email: string;
+  rol: 'RESPONSABLE_EVENTOS' | 'RESPONSABLE_FINANZAS' | 'GERENTE_GENERAL';
+}
+
+// Un usuario de prueba por cada rol activo en Sprint 1 (CLIENTE se activa recién
+// en Sprint 2, ver modelo-datos.md). Contraseña única y a propósito débil: es SOLO
+// para desarrollo/QA local, nunca se usa en producción — no hay ningún flujo que
+// corra este seed contra la base de Render/Neon de producción.
+const CONTRASENA_DESARROLLO = 'confluens2026';
+
+const USUARIOS: SeedUsuario[] = [
+  { email: 're@confluens.test', rol: 'RESPONSABLE_EVENTOS' },
+  { email: 'rf@confluens.test', rol: 'RESPONSABLE_FINANZAS' },
+  { email: 'gg@confluens.test', rol: 'GERENTE_GENERAL' },
+];
+
+async function cargarUsuarios(): Promise<void> {
+  const hashContrasena = await hashearContrasena(CONTRASENA_DESARROLLO);
+  for (const { email, rol } of USUARIOS) {
+    await prisma.usuario.upsert({
+      where: { email },
+      create: { email, rol, hashContrasena },
+      update: { rol, hashContrasena },
+    });
+  }
+}
+
 async function cargarSalones(): Promise<void> {
   for (const { distribuciones, ...datos } of SALONES) {
     // Capacidad máxima del salón = la mayor de sus distribuciones (decisión del Sprint 1).
@@ -283,7 +312,10 @@ async function cargarServicios(): Promise<void> {
 try {
   await cargarSalones();
   await cargarServicios();
-  console.log(`Seed completo: ${SALONES.length} salones y ${SERVICIOS.length} servicios.`);
+  await cargarUsuarios();
+  console.log(
+    `Seed completo: ${SALONES.length} salones, ${SERVICIOS.length} servicios y ${USUARIOS.length} usuarios de prueba (contraseña: "${CONTRASENA_DESARROLLO}").`,
+  );
 } finally {
   await prisma.$disconnect();
 }
