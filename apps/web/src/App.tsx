@@ -17,6 +17,11 @@ type Vista =
 // del Responsable de Eventos solo para poder verificarlas en un solo lugar; cuando se integren
 // las ramas, la landing pasa a ser la raíz pública y el resto cuelga del Panel. Mismo criterio
 // documentado en HU-01, HU-14 y HU-32.
+import { ConsultarSalones } from '@/paginas/salones/ConsultarSalones';
+
+// Montaje temporal: todavía no hay router ni menú por rol (eso llega con HU-27, en otra rama sin
+// mergear). Cuando se integren, esta página pasa a colgar de una ruta protegida en vez de ser la
+// raíz de la app.
 export default function App() {
   const [vista, setVista] = useState<Vista>({ tipo: 'publica' });
 
