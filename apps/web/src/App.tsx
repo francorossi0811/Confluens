@@ -6,20 +6,22 @@ import { DetalleEvento } from '@/paginas/eventos/DetalleEvento';
 import { TomarConsulta } from '@/paginas/eventos/TomarConsulta';
 import { IniciarSesion } from '@/paginas/auth/IniciarSesion';
 import { Panel } from '@/paginas/panel/Panel';
+import { RegistrarServicio } from '@/paginas/servicios/RegistrarServicio';
 import { Landing } from '@/paginas/solicitudes/Landing';
 import { ListadoSolicitudes } from '@/paginas/solicitudes/ListadoSolicitudes';
 
 type Vista =
   | { tipo: 'publica' }
   | { tipo: 'interna' }
+  | { tipo: 'servicios' }
   | { tipo: 'tomar-consulta'; solicitud?: Solicitud }
   | { tipo: 'detalle-evento'; eventoId: number };
 
-// Montaje temporal, todavía sin router (ADR 0002). Al integrar HU-27 con HU-14/HU-15 el canal
-// público (landing + formulario de consulta, que no requiere sesión por el criterio 2 de HU-14)
-// queda separado del canal interno, que ahora sí pasa por el login y el panel por rol de HU-27.
-// Las pantallas internas de HU-14/HU-15 se alcanzan desde el panel con el conmutador de abajo:
-// los ítems del menú de Panel siguen sin rutear (eso es HU-28), así que no se los toca acá.
+// Montaje temporal, todavía sin router (ADR 0002). Al integrar HU-27 con HU-14/HU-15/HU-32 el
+// canal público (landing + formulario de consulta, que no requiere sesión por el criterio 2 de
+// HU-14) queda separado del interno, que ahora sí pasa por el login y el panel por rol de HU-27.
+// Las pantallas internas se alcanzan desde el conmutador de abajo: los ítems del menú de Panel
+// siguen sin rutear (eso es HU-28), así que no se los toca acá.
 export default function App() {
   const { data: sesion, isLoading } = useSesion();
   const [vista, setVista] = useState<Vista>({ tipo: 'publica' });
@@ -80,6 +82,13 @@ export default function App() {
         <span className="text-muted-foreground">·</span>
         <button
           className="underline underline-offset-2"
+          onClick={() => setVista({ tipo: 'servicios' })}
+        >
+          Servicios
+        </button>
+        <span className="text-muted-foreground">·</span>
+        <button
+          className="underline underline-offset-2"
           onClick={() => setVista({ tipo: 'publica' })}
         >
           Vista pública
@@ -90,6 +99,7 @@ export default function App() {
           onTomar={(solicitud) => setVista({ tipo: 'tomar-consulta', solicitud })}
         />
       )}
+      {vista.tipo === 'servicios' && <RegistrarServicio />}
       {vista.tipo === 'tomar-consulta' && (
         <TomarConsulta
           solicitud={vista.solicitud}

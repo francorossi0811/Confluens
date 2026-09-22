@@ -15,3 +15,14 @@ export const esquemaServicio = z.object({
   actualizadoEn: esquemaFechaHora,
 });
 export type Servicio = z.infer<typeof esquemaServicio>;
+
+// Body de POST /servicios (HU-32): se omiten los campos que controla el servidor. "activo" nace
+// siempre en true (no hay alta con un servicio ya inactivo) y no hay endpoint de baja en este
+// sprint, así que tampoco es parte del contrato de creación.
+export const esquemaCrearServicio = esquemaServicio.omit({
+  id: true,
+  activo: true,
+  creadoEn: true,
+  actualizadoEn: true,
+});
+export type CrearServicio = z.infer<typeof esquemaCrearServicio>;
