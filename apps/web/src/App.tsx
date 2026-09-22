@@ -1,52 +1,105 @@
 import type { Solicitud } from '@confluens/shared';
 import { useState } from 'react';
 
+import { useSesion } from '@/hooks/use-sesion';
 import { DetalleEvento } from '@/paginas/eventos/DetalleEvento';
 import { TomarConsulta } from '@/paginas/eventos/TomarConsulta';
+import { IniciarSesion } from '@/paginas/auth/IniciarSesion';
+import { Panel } from '@/paginas/panel/Panel';
+import { RegistrarServicio } from '@/paginas/servicios/RegistrarServicio';
 import { Landing } from '@/paginas/solicitudes/Landing';
 import { ListadoSolicitudes } from '@/paginas/solicitudes/ListadoSolicitudes';
 
 type Vista =
   | { tipo: 'publica' }
   | { tipo: 'interna' }
+  | { tipo: 'servicios' }
   | { tipo: 'tomar-consulta'; solicitud?: Solicitud }
   | { tipo: 'detalle-evento'; eventoId: number };
 
-// Montaje temporal: todavía no hay router ni menú por rol integrado en esta rama (ADR 0002, HU-27,
-// en otra rama sin mergear). Se alterna a mano entre la landing pública y las pantallas internas
-// del Responsable de Eventos solo para poder verificarlas en un solo lugar; cuando se integren
-// las ramas, la landing pasa a ser la raíz pública y el resto cuelga del Panel. Mismo criterio
-// documentado en HU-01, HU-14 y HU-32.
-
-// Montaje temporal: todavía no hay router ni menú por rol (eso llega con HU-27, en otra rama sin
-// mergear). Cuando se integren, esta página pasa a colgar de una ruta protegida en vez de ser la
-// raíz de la app.
+// Montaje temporal, todavía sin router (ADR 0002). Al integrar HU-27 con HU-14/HU-15/HU-32 el
+// canal público (landing + formulario de consulta, que no requiere sesión por el criterio 2 de
+// HU-14) queda separado del interno, que ahora sí pasa por el login y el panel por rol de HU-27.
+// Las pantallas internas se alcanzan desde el conmutador de abajo: los ítems del menú de Panel
+// siguen sin rutear (eso es HU-28), así que no se los toca acá.
 export default function App() {
+  const { data: sesion, isLoading } = useSesion();
   const [vista, setVista] = useState<Vista>({ tipo: 'publica' });
+
+  // Mientras se resuelve GET /auth/yo no se sabe todavía si hay sesión: mostrar
+  // login prematuramente causaría un parpadeo (login → panel) en cada recarga de
+  // página para un usuario que sí tiene sesión vigente.
+  if (isLoading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background text-foreground">
+        <p className="text-sm text-muted-foreground">Cargando…</p>
+      </main>
+    );
+  }
+
+  if (vista.tipo === 'publica') {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="flex justify-end border-b bg-card p-2 text-xs">
+          <button
+            className="underline underline-offset-2"
+            onClick={() => setVista({ tipo: 'interna' })}
+          >
+            Acceso interno
+          </button>
+        </div>
+        <Landing />
+      </div>
+    );
+  }
+
+  if (!sesion) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="flex justify-start border-b bg-card p-2 text-xs">
+          <button
+            className="underline underline-offset-2"
+            onClick={() => setVista({ tipo: 'publica' })}
+          >
+            ← Volver al sitio público
+          </button>
+        </div>
+        <IniciarSesion />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="flex justify-center gap-2 border-b bg-card p-2 text-xs">
+      <Panel sesion={sesion} />
+      <div className="flex justify-center gap-2 border-t bg-card p-2 text-xs">
+        <button
+          className="underline underline-offset-2"
+          onClick={() => setVista({ tipo: 'interna' })}
+        >
+          Solicitudes
+        </button>
+        <span className="text-muted-foreground">·</span>
+        <button
+          className="underline underline-offset-2"
+          onClick={() => setVista({ tipo: 'servicios' })}
+        >
+          Servicios
+        </button>
+        <span className="text-muted-foreground">·</span>
         <button
           className="underline underline-offset-2"
           onClick={() => setVista({ tipo: 'publica' })}
         >
           Vista pública
         </button>
-        <span className="text-muted-foreground">·</span>
-        <button
-          className="underline underline-offset-2"
-          onClick={() => setVista({ tipo: 'interna' })}
-        >
-          Vista interna (RE)
-        </button>
       </div>
-      {vista.tipo === 'publica' && <Landing />}
       {vista.tipo === 'interna' && (
         <ListadoSolicitudes
           onTomar={(solicitud) => setVista({ tipo: 'tomar-consulta', solicitud })}
         />
       )}
+      {vista.tipo === 'servicios' && <RegistrarServicio />}
       {vista.tipo === 'tomar-consulta' && (
         <TomarConsulta
           solicitud={vista.solicitud}
