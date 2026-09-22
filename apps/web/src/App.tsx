@@ -30,38 +30,40 @@ export default function App() {
   const [vista, setVista] = useState<Vista>({ tipo: 'publica' });
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <RegistrarServicio />
-    </main>
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="flex justify-center gap-2 border-b bg-card p-2 text-xs">
-        <button
-          className="underline underline-offset-2"
-          onClick={() => setVista({ tipo: 'publica' })}
-        >
-          Vista pública
-        </button>
-        <span className="text-muted-foreground">·</span>
-        <button
-          className="underline underline-offset-2"
-          onClick={() => setVista({ tipo: 'interna' })}
-        >
-          Vista interna (RE)
-        </button>
+    <>
+      <main className="min-h-screen bg-background text-foreground">
+        <RegistrarServicio />
+      </main>
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="flex justify-center gap-2 border-b bg-card p-2 text-xs">
+          <button
+            className="underline underline-offset-2"
+            onClick={() => setVista({ tipo: 'publica' })}
+          >
+            Vista pública
+          </button>
+          <span className="text-muted-foreground">·</span>
+          <button
+            className="underline underline-offset-2"
+            onClick={() => setVista({ tipo: 'interna' })}
+          >
+            Vista interna (RE)
+          </button>
+        </div>
+        {vista.tipo === 'publica' && <Landing />}
+        {vista.tipo === 'interna' && (
+          <ListadoSolicitudes
+            onTomar={(solicitud) => setVista({ tipo: 'tomar-consulta', solicitud })}
+          />
+        )}
+        {vista.tipo === 'tomar-consulta' && (
+          <TomarConsulta
+            solicitud={vista.solicitud}
+            onCreado={(eventoId) => setVista({ tipo: 'detalle-evento', eventoId })}
+          />
+        )}
+        {vista.tipo === 'detalle-evento' && <DetalleEvento eventoId={vista.eventoId} />}
       </div>
-      {vista.tipo === 'publica' && <Landing />}
-      {vista.tipo === 'interna' && (
-        <ListadoSolicitudes
-          onTomar={(solicitud) => setVista({ tipo: 'tomar-consulta', solicitud })}
-        />
-      )}
-      {vista.tipo === 'tomar-consulta' && (
-        <TomarConsulta
-          solicitud={vista.solicitud}
-          onCreado={(eventoId) => setVista({ tipo: 'detalle-evento', eventoId })}
-        />
-      )}
-      {vista.tipo === 'detalle-evento' && <DetalleEvento eventoId={vista.eventoId} />}
-    </div>
+    </>
   );
 }
