@@ -17,6 +17,8 @@ export const esquemaEvento = z.object({
   fin: esquemaFechaHora.nullable(),
   cantidadPersonas: z.number().int().positive(),
   estado: esquemaEstadoEvento,
+  senaVenceEn: esquemaFechaHora.nullable(), // plazo de 10 días desde la confirmación (RN-06)
+  senaRegistradaEn: esquemaFechaHora.nullable(), // cuándo el RE marcó la seña como cobrada
   modalidadSalonRestaurante: z.boolean(), // opción interna, no visible al cliente
   creadoEn: esquemaFechaHora,
   actualizadoEn: esquemaFechaHora,

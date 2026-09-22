@@ -139,6 +139,8 @@ model Evento {
   fin                       DateTime? // horario hasta
   cantidadPersonas          Int
   estado                    EstadoEvento  @default(EnConsulta)
+  senaVenceEn               DateTime? // plazo de 10 días desde la confirmación (RN-06)
+  senaRegistradaEn          DateTime? // cuándo el RE marcó la seña como cobrada
   modalidadSalonRestaurante Boolean       @default(false) // opción interna, no visible al cliente
   solicitud                 Solicitud?
   presupuestos              Presupuesto[]
