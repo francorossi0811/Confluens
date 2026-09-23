@@ -46,3 +46,23 @@ export function useCrearServicio() {
     },
   });
 }
+
+// HU-08: foto del servicio en la landing. Mismo criterio de invalidación que
+// useActualizarLandingSalon. fotoUrl null quita la foto.
+export function useActualizarLandingServicio() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, fotoUrl }: { id: number; fotoUrl: string | null }) => {
+      const respuesta = await apiFetch<RespuestaExito<Servicio>>(`/servicios/${id}/landing`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fotoUrl }),
+      });
+      return respuesta.data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['servicios'] });
+    },
+  });
+}
