@@ -37,7 +37,9 @@ export function TomarConsulta({ solicitud, onCreado }: TomarConsultaProps) {
   const [cantidadPersonas, setCantidadPersonas] = useState(
     solicitud ? String(solicitud.cantidadPersonas) : '',
   );
-  const [salonId, setSalonId] = useState('');
+  // Si el cliente eligió un salón en la landing (HU-07), viene precargado. Es una preferencia:
+  // el RE puede cambiarlo, porque el salón definitivo depende de la disponibilidad real.
+  const [salonId, setSalonId] = useState(solicitud?.salonId ? String(solicitud.salonId) : '');
   const [tipoJornada, setTipoJornada] = useState<'completa' | 'media'>('completa');
   const [servicios, setServicios] = useState<ServicioSeleccionadoForm[]>([]);
   const [erroresCampos, setErroresCampos] = useState<Record<string, string>>({});
@@ -177,7 +179,10 @@ export function TomarConsulta({ solicitud, onCreado }: TomarConsultaProps) {
                 mergeen esas ramas y haya GET /salones y GET /servicios reales. */}
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="salonId">Salón (id)</Label>
+                <Label htmlFor="salonId">
+                  Salón (id)
+                  {solicitud?.salonId ? ' · preferencia del cliente' : ''}
+                </Label>
                 <Input
                   id="salonId"
                   type="number"

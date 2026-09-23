@@ -1,4 +1,4 @@
-import type { CrearServicio, RespuestaExito, Servicio } from '@confluens/shared';
+import type { CrearServicio, RespuestaExito, Servicio, ServicioPublico } from '@confluens/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api';
@@ -10,6 +10,18 @@ export function useServicios() {
     queryKey: ['servicios'],
     queryFn: async () => {
       const respuesta = await apiFetch<RespuestaExito<Servicio[]>>('/servicios');
+      return respuesta.data;
+    },
+  });
+}
+
+// Oferta gastronómica del canal público (HU-07), sin precios. Misma razón de ser y misma
+// convención de clave anidada que useSalonesPublicos.
+export function useServiciosPublicos() {
+  return useQuery({
+    queryKey: ['servicios', 'publicos'],
+    queryFn: async () => {
+      const respuesta = await apiFetch<RespuestaExito<ServicioPublico[]>>('/servicios/publicos');
       return respuesta.data;
     },
   });

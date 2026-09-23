@@ -1,4 +1,6 @@
+import type { SalonPublico } from '@confluens/shared';
 import { esquemaCrearSolicitud } from '@confluens/shared';
+import { X } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -20,7 +22,17 @@ const valoresIniciales = {
 // valida con el mismo esquemaCrearSolicitud del servidor para dar el error al toque (criterio 5)
 // sin esperar el round-trip — cantidadPersonas viaja como string en el estado del input y se
 // castea a número recién al validar, porque <input type="number"> maneja strings.
-export function FormularioConsulta() {
+//
+// salonElegido llega de la ficha de salón de la landing (criterio 3 de HU-07) y es opcional: al
+// formulario también se llega directo, sin haber elegido ninguno. Es una preferencia del cliente,
+// no una reserva: no bloquea la fecha ni obliga al Responsable de Eventos a usar ese salón.
+export function FormularioConsulta({
+  salonElegido = null,
+  onQuitarSalon,
+}: {
+  salonElegido?: SalonPublico | null;
+  onQuitarSalon?: () => void;
+} = {}) {
   const registrarSolicitud = useRegistrarSolicitud();
 
   const [valores, setValores] = useState(valoresIniciales);
@@ -39,6 +51,7 @@ export function FormularioConsulta() {
     const resultado = esquemaCrearSolicitud.safeParse({
       ...valores,
       cantidadPersonas: Number(valores.cantidadPersonas),
+      salonId: salonElegido?.id ?? null,
     });
     if (!resultado.success) {
       const errores: Record<string, string> = {};
@@ -73,6 +86,25 @@ export function FormularioConsulta() {
 
   return (
     <form onSubmit={manejarEnvio} className="space-y-4 rounded-lg border bg-card p-6">
+      {salonElegido && (
+        <div className="flex items-center justify-between gap-2 rounded-md border bg-background px-3 py-2 text-sm">
+          <span>
+            Consulta para el salón <strong>{salonElegido.nombre}</strong>
+          </span>
+          {/* Se puede quitar: el salón es una preferencia, y quien llegó por curiosidad a una
+              ficha no queda atado a ella. */}
+          {onQuitarSalon && (
+            <button
+              type="button"
+              onClick={onQuitarSalon}
+              className="inline-flex items-center gap-1 text-muted-foreground underline underline-offset-2"
+            >
+              <X className="size-3.5" /> Quitar
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="space-y-1.5">
         <Label htmlFor="nombre">Nombre y apellido</Label>
         <Input
