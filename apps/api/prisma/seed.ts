@@ -258,7 +258,7 @@ const SERVICIOS: SeedServicioCargable[] = [
 
 interface SeedUsuario {
   email: string;
-  rol: 'RESPONSABLE_EVENTOS' | 'RESPONSABLE_FINANZAS' | 'GERENTE_GENERAL';
+  rol: 'RESPONSABLE_EVENTOS' | 'RESPONSABLE_FINANZAS' | 'GERENTE_GENERAL' | 'ADMINISTRADOR_SISTEMA';
 }
 
 // Un usuario de prueba por cada rol activo en Sprint 1 (CLIENTE se activa recién
@@ -271,6 +271,7 @@ const USUARIOS: SeedUsuario[] = [
   { email: 're@confluens.test', rol: 'RESPONSABLE_EVENTOS' },
   { email: 'rf@confluens.test', rol: 'RESPONSABLE_FINANZAS' },
   { email: 'gg@confluens.test', rol: 'GERENTE_GENERAL' },
+  { email: 'admin@confluens.test', rol: 'ADMINISTRADOR_SISTEMA' },
 ];
 
 async function cargarUsuarios(): Promise<void> {

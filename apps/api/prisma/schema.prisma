@@ -33,6 +33,7 @@ enum Rol {
   RESPONSABLE_EVENTOS
   RESPONSABLE_FINANZAS
   GERENTE_GENERAL
+  ADMINISTRADOR_SISTEMA // administra el contenido público de la landing (HU-08); ve todo
   CLIENTE // definido desde el Sprint 1, se activa en el Sprint 2
 }
 
