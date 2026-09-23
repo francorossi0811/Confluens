@@ -10,6 +10,14 @@ export async function listarServicios(repo: ServiciosRepositorio = serviciosRepo
   return repo.listarActivos();
 }
 
+// Catálogo del canal público (HU-07). El recorte de campos vive en el repositorio: es parte de la
+// consulta, no una regla que dependa de quién pregunta (ver salones.servicio.ts).
+export async function listarServiciosPublicos(
+  repo: ServiciosRepositorio = serviciosRepositorioReal,
+) {
+  return repo.listarPublicos();
+}
+
 /**
  * Crea un servicio nuevo en el catálogo.
  *

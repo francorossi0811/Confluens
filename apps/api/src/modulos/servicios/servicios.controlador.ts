@@ -1,7 +1,7 @@
-import type { CrearServicio, RespuestaExito, Servicio } from '@confluens/shared';
+import type { CrearServicio, RespuestaExito, Servicio, ServicioPublico } from '@confluens/shared';
 import type { Request, Response } from 'express';
 
-import { crearServicio, listarServicios } from './servicios.servicio.js';
+import { crearServicio, listarServicios, listarServiciosPublicos } from './servicios.servicio.js';
 
 export async function listar(_req: Request, res: Response): Promise<void> {
   const servicios = await listarServicios();
@@ -10,6 +10,13 @@ export async function listar(_req: Request, res: Response): Promise<void> {
     // shared (Decimal -> string), igual que en los demás módulos (ver salones.controlador.ts).
     data: servicios as unknown as Servicio[],
   };
+  res.json(cuerpo);
+}
+
+// Sin autenticar: es la oferta gastronómica que la landing muestra a cualquiera (HU-07).
+export async function listarPublicos(_req: Request, res: Response): Promise<void> {
+  const servicios = await listarServiciosPublicos();
+  const cuerpo: RespuestaExito<ServicioPublico[]> = { data: servicios };
   res.json(cuerpo);
 }
 

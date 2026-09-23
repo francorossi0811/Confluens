@@ -20,9 +20,19 @@ export async function listar() {
 // fechaDeseada llega como string "AAAA-MM-DD" (esquemaFecha = z.iso.date()): Prisma con el
 // adapter-pg exige un DateTime ISO-8601 completo incluso para columnas @db.Date y rechaza la
 // fecha "corta" con PrismaClientValidationError, por eso se convierte acá.
+//
+// salonId es el salón que el cliente venía mirando en la landing (HU-07). Se normaliza a null
+// cuando el formulario no lo manda —se llega a él desde el menú y no desde la ficha de un salón—
+// para que la columna nunca quede en undefined y el listado interno pueda distinguir "sin
+// preferencia" de "prefiere este salón".
 export async function crear(datos: CrearSolicitud) {
   return prisma.solicitud.create({
-    data: { ...datos, fechaDeseada: new Date(datos.fechaDeseada), clienteId: null },
+    data: {
+      ...datos,
+      fechaDeseada: new Date(datos.fechaDeseada),
+      salonId: datos.salonId ?? null,
+      clienteId: null,
+    },
   });
 }
 

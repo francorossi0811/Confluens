@@ -11,6 +11,16 @@ import { crearServicio, listarServicios } from './servicios.servicio.js';
 function repositorioFake(servicios: Servicio[]): ServiciosRepositorio {
   return {
     listarActivos: async () => servicios.filter((s) => s.activo),
+    listarPublicos: async () =>
+      servicios
+        .filter((s) => s.activo)
+        .map(({ id, nombre, descripcion, categoria, fotoUrl }) => ({
+          id,
+          nombre,
+          descripcion,
+          categoria,
+          fotoUrl,
+        })),
     buscarPorNombre: async (nombre) => servicios.find((s) => s.nombre === nombre) ?? null,
     crear: async (datos) => {
       const nuevo: Servicio = {
@@ -18,6 +28,9 @@ function repositorioFake(servicios: Servicio[]): ServiciosRepositorio {
         ...datos,
         precio: new Decimal(datos.precio),
         activo: true,
+        // El alta del catálogo no publica contenido de la landing: lo hace HU-08.
+        categoria: null,
+        fotoUrl: null,
         creadoEn: new Date(),
         actualizadoEn: new Date(),
       };
@@ -36,6 +49,8 @@ const servicioBase: Servicio = {
   porPersona: true,
   tercerizado: false,
   activo: true,
+  categoria: 'Coffee breaks',
+  fotoUrl: null,
   creadoEn: new Date(),
   actualizadoEn: new Date(),
 };

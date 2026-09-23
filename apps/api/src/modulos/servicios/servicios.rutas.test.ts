@@ -9,12 +9,15 @@ import { Decimal } from '../../generated/prisma/internal/prismaNamespace.js';
 // necesitar Postgres en CI, mismo criterio que auth.rutas.test.ts (HU-27).
 vi.mock('./servicios.repositorio.js', () => ({
   listarActivos: vi.fn(),
+  listarPublicos: vi.fn(),
   buscarPorNombre: vi.fn(),
   crear: vi.fn(),
 }));
 
-const { listarActivos, buscarPorNombre, crear } = await import('./servicios.repositorio.js');
+const { listarActivos, listarPublicos, buscarPorNombre, crear } =
+  await import('./servicios.repositorio.js');
 const listarActivosMock = vi.mocked(listarActivos);
+const listarPublicosMock = vi.mocked(listarPublicos);
 const buscarPorNombreMock = vi.mocked(buscarPorNombre);
 const crearMock = vi.mocked(crear);
 
@@ -29,6 +32,8 @@ const servicioDb = {
   porPersona: true,
   tercerizado: false,
   activo: true,
+  categoria: 'Coffee breaks',
+  fotoUrl: null,
   creadoEn: new Date(),
   actualizadoEn: new Date(),
 };
@@ -49,6 +54,44 @@ describe('GET /api/servicios', () => {
       nombre: 'Coffee break estándar',
       precio: '4500',
     });
+  });
+});
+
+// HU-07. Igual que en salones: el recorte de campos es un select del repositorio, así que el mock
+// ya devuelve la forma recortada y lo que se verifica acá es el contrato de la ruta.
+describe('GET /api/servicios/publicos', () => {
+  const servicioPublico = {
+    id: servicioDb.id,
+    nombre: servicioDb.nombre,
+    descripcion: servicioDb.descripcion,
+    categoria: servicioDb.categoria,
+    fotoUrl: servicioDb.fotoUrl,
+  };
+
+  beforeEach(() => {
+    listarPublicosMock.mockReset();
+  });
+
+  it('responde 200 sin sesión, con la oferta agrupable por categoría', async () => {
+    listarPublicosMock.mockResolvedValue([servicioPublico]);
+
+    const respuesta = await request(app).get('/api/servicios/publicos');
+
+    expect(respuesta.status).toBe(200);
+    expect(respuesta.body.data).toEqual([
+      expect.objectContaining({ nombre: 'Coffee break estándar', categoria: 'Coffee breaks' }),
+    ]);
+  });
+
+  it('no expone precio ni datos internos de presupuestación', async () => {
+    listarPublicosMock.mockResolvedValue([servicioPublico]);
+
+    const respuesta = await request(app).get('/api/servicios/publicos');
+
+    expect(respuesta.body.data[0]).not.toHaveProperty('precio');
+    expect(respuesta.body.data[0]).not.toHaveProperty('porPersona');
+    expect(respuesta.body.data[0]).not.toHaveProperty('tercerizado');
+    expect(respuesta.text).not.toContain('4500');
   });
 });
 
