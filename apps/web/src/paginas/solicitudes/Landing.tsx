@@ -1,7 +1,7 @@
 import type { SalonPublico } from '@confluens/shared';
-// AtSign y no un ícono de Instagram: lucide-react sacó los logos de marca de su set, y no se
-// agrega una dependencia de íconos nueva por un solo enlace.
-import { AtSign, Check, LayoutGrid, MapPin } from 'lucide-react';
+// Share2 (el ícono genérico de redes) y no el logo de Instagram: lucide-react sacó los logos de
+// marca de su set, y no se agrega una dependencia de íconos nueva por un solo enlace.
+import { Check, LayoutGrid, MapPin, Share2 } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -156,7 +156,7 @@ export function Landing() {
             rel="noreferrer"
             className="inline-flex items-center gap-2 text-muted-foreground underline-offset-4 hover:underline"
           >
-            <AtSign className="size-4" />
+            <Share2 className="size-4" />
             {INSTAGRAM.usuario} en Instagram
           </a>
         </div>
