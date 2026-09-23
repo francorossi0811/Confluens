@@ -46,6 +46,8 @@ const salonFixture = {
   superficie: 400,
   precioJornadaCompleta: new Prisma.Decimal('142200'),
   precioMediaJornada: new Prisma.Decimal('107900'),
+  visibleEnLanding: true,
+  fotoUrl: null,
   creadoEn: new Date(),
   actualizadoEn: new Date(),
 };

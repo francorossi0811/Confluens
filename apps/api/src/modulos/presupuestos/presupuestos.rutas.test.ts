@@ -49,6 +49,8 @@ const salonFixture = {
   superficie: 24,
   precioJornadaCompleta: new Prisma.Decimal('142200'),
   precioMediaJornada: new Prisma.Decimal('107900'),
+  visibleEnLanding: true,
+  fotoUrl: null,
   creadoEn: new Date(),
   actualizadoEn: new Date(),
 };
@@ -66,6 +68,8 @@ const servicioFixtureBase = {
   porPersona: true,
   tercerizado: false,
   activo: true,
+  categoria: 'Coffee breaks',
+  fotoUrl: null,
   creadoEn: new Date(),
   actualizadoEn: new Date(),
 };
@@ -106,6 +110,7 @@ const solicitudFixture = {
   correo: 'marina@example.com',
   fechaDeseada: new Date('2026-11-15'),
   cantidadPersonas: 10,
+  salonId: null,
   descartada: false,
   eventoId: null,
   creadoEn: new Date(),

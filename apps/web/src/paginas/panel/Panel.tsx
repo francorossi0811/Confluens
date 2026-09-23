@@ -20,6 +20,18 @@ const SECCIONES_POR_ROL: Record<Rol, string[]> = {
     'Administración de usuarios',
     'Reportes de ingresos',
   ],
+  // Ve todo lo del Gerente General y además administra el contenido de la landing (HU-08):
+  // es el único rol al que le aparece "Landing page".
+  ADMINISTRADOR_SISTEMA: [
+    'Salones',
+    'Solicitudes',
+    'Presupuestos',
+    'Eventos',
+    'Cobranzas',
+    'Administración de usuarios',
+    'Reportes de ingresos',
+    'Landing page',
+  ],
   CLIENTE: ['Mis solicitudes'],
 };
 

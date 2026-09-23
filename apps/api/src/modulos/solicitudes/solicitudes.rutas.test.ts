@@ -25,6 +25,7 @@ const solicitudDb = {
   correo: 'marina@example.com',
   fechaDeseada: new Date('2026-11-15'),
   cantidadPersonas: 80,
+  salonId: null,
   descartada: false,
   eventoId: null,
   creadoEn: new Date(),

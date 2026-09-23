@@ -15,6 +15,26 @@ export async function listarActivos() {
   });
 }
 
+// Catálogo del canal público (HU-07). Solo los activos, igual que el listado interno, y con un
+// select explícito que deja afuera precio, unidadMedida, porPersona y tercerizado: son datos de
+// presupuestación, no información de referencia. La landing no muestra precios — la vista con
+// precios sin IVA es para el cliente registrado (Sprint 2).
+// Orden por categoría y después por nombre: la landing agrupa por categoría, así que viene listo
+// para recorrer sin reordenar en la web. Los servicios sin categoría quedan al final (nulls last).
+export async function listarPublicos() {
+  return prisma.servicio.findMany({
+    where: { activo: true },
+    select: {
+      id: true,
+      nombre: true,
+      descripcion: true,
+      categoria: true,
+      fotoUrl: true,
+    },
+    orderBy: [{ categoria: { sort: 'asc', nulls: 'last' } }, { nombre: 'asc' }],
+  });
+}
+
 // nombre es @unique en el schema: sirve tanto para buscar como para el chequeo de duplicados del
 // servicio (criterio 4 de HU-32).
 export async function buscarPorNombre(nombre: string) {
@@ -29,8 +49,38 @@ export async function crear(datos: CrearServicio) {
   });
 }
 
+export async function buscarPorId(id: number) {
+  return prisma.servicio.findUnique({ where: { id } });
+}
+
+// Asigna la foto del servicio en la landing y audita el cambio en la misma transacción, con el
+// mismo criterio que salones.repositorio.ts (HU-08, criterio 4).
+export async function actualizarLanding(
+  id: number,
+  fotoUrl: string | null,
+  anterior: string | null,
+  usuarioId: number,
+) {
+  return prisma.$transaction(async (tx) => {
+    const servicio = await tx.servicio.update({ where: { id }, data: { fotoUrl } });
+    await tx.auditLog.create({
+      data: {
+        usuarioId,
+        entidad: 'Servicio',
+        entidadId: String(id),
+        valorAnterior: { fotoUrl: anterior },
+        valorNuevo: { fotoUrl },
+      },
+    });
+    return servicio;
+  });
+}
+
 export type ServiciosRepositorio = {
   listarActivos: typeof listarActivos;
+  listarPublicos: typeof listarPublicos;
   buscarPorNombre: typeof buscarPorNombre;
+  buscarPorId: typeof buscarPorId;
   crear: typeof crear;
+  actualizarLanding: typeof actualizarLanding;
 };

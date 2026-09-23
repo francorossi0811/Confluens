@@ -1,6 +1,7 @@
 import type { Solicitud } from '@confluens/shared';
 
 import { Button } from '@/components/ui/button';
+import { useSalones } from '@/hooks/use-salones';
 import { useSolicitudes } from '@/hooks/use-solicitudes';
 
 const formateadorFecha = new Intl.DateTimeFormat('es-AR', { dateStyle: 'medium' });
@@ -18,6 +19,10 @@ interface ListadoSolicitudesProps {
 // requerir sesión de RE/GG (mismo comentario que en solicitudes.controlador.ts).
 export function ListadoSolicitudes({ onTomar }: ListadoSolicitudesProps) {
   const { data: solicitudes, isLoading, isError } = useSolicitudes();
+  // Para mostrar el nombre del salón que el cliente eligió en la landing (HU-07) en vez del id.
+  // Se usa el listado interno (no el público) porque un salón despublicado sigue apareciendo en
+  // solicitudes viejas y el RE tiene que poder leerlo igual.
+  const { data: salones } = useSalones();
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 p-6">
@@ -43,6 +48,13 @@ export function ListadoSolicitudes({ onTomar }: ListadoSolicitudesProps) {
                 {solicitud.telefono} · {solicitud.correo} · {solicitud.cantidadPersonas} personas ·{' '}
                 {formateadorFecha.format(new Date(solicitud.fechaDeseada))}
               </p>
+              {solicitud.salonId !== null && (
+                <p className="text-muted-foreground">
+                  Salón de interés:{' '}
+                  {salones?.find((salon) => salon.id === solicitud.salonId)?.nombre ??
+                    `#${solicitud.salonId}`}
+                </p>
+              )}
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground">

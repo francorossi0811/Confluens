@@ -105,6 +105,7 @@ cuando el estado del evento es Reservado.
 | Responsable de Eventos | `RE` | Consulta, presupuesto, agenda y reserva. Mayor uso diario. |
 | Responsable de Finanzas | `RF` | Cobros, medios de pago, seguimiento de deuda. |
 | Gerente General | `GG` | Reportes, usuarios, política de precios. Lectura de todo. Único que ve la auditoría. |
+| Administrador del Sistema | `ADM` | Acceso completo: todo lo del Gerente General más el contenido público de la landing (qué salones se publican y qué fotos se muestran). |
 | Sistema | `SYS` | Actor no humano: tareas programadas, cálculos, auditoría. |
 | Cliente | `CLI` | Externo a la organización, con credenciales propias. Solo el canal público: envía solicitudes y consulta las suyas. Nunca accede al panel interno. Se implementa en el Sprint 2. |
 

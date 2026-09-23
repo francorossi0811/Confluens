@@ -10,6 +10,14 @@ export async function listarServicios(repo: ServiciosRepositorio = serviciosRepo
   return repo.listarActivos();
 }
 
+// Catálogo del canal público (HU-07). El recorte de campos vive en el repositorio: es parte de la
+// consulta, no una regla que dependa de quién pregunta (ver salones.servicio.ts).
+export async function listarServiciosPublicos(
+  repo: ServiciosRepositorio = serviciosRepositorioReal,
+) {
+  return repo.listarPublicos();
+}
+
 /**
  * Crea un servicio nuevo en el catálogo.
  *
@@ -30,4 +38,18 @@ export async function crearServicio(
   }
 
   return repo.crear(datos);
+}
+
+// HU-08: asigna (o quita, con null) la foto del servicio en la landing. Igual que en salones, se
+// lee el estado anterior para poder auditarlo y se corta con 404 antes de escribir.
+export async function actualizarLandingServicio(
+  id: number,
+  fotoUrl: string | null,
+  usuarioId: number,
+  repo: ServiciosRepositorio = serviciosRepositorioReal,
+) {
+  const servicio = await repo.buscarPorId(id);
+  if (!servicio) throw ErrorApi.noEncontrado('No existe el servicio indicado');
+
+  return repo.actualizarLanding(id, fotoUrl, servicio.fotoUrl, usuarioId);
 }
