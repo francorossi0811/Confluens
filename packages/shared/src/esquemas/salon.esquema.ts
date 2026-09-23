@@ -10,6 +10,8 @@ export const esquemaSalon = z.object({
   superficie: z.number().int().positive(), // m²
   precioJornadaCompleta: esquemaImporte,
   precioMediaJornada: esquemaImporte,
+  visibleEnLanding: z.boolean(),
+  fotoUrl: z.url().nullable(),
   creadoEn: esquemaFechaHora,
   actualizadoEn: esquemaFechaHora,
 });
@@ -23,3 +25,18 @@ export const esquemaSalonConDistribuciones = esquemaSalon.extend({
   distribuciones: z.array(esquemaDistribucion),
 });
 export type SalonConDistribuciones = z.infer<typeof esquemaSalonConDistribuciones>;
+
+// Forma que devuelve GET /api/salones/publicos (HU-07). Es un schema propio y no un .omit() del
+// anterior para que quede explícito qué se publica: el criterio 5 pide que el canal público
+// exponga solo información de referencia del salón. Los precios no están acá a propósito — no
+// viajan por la red aunque nadie los muestre en pantalla; la vista con precios sin IVA es para el
+// cliente registrado (Sprint 2). visibleEnLanding tampoco viaja: es un filtro del servidor.
+export const esquemaSalonPublico = z.object({
+  id: esquemaId,
+  nombre: z.string().min(1),
+  capacidadMaxima: z.number().int().positive(),
+  superficie: z.number().int().positive(), // m²
+  fotoUrl: z.url().nullable(),
+  distribuciones: z.array(esquemaDistribucion),
+});
+export type SalonPublico = z.infer<typeof esquemaSalonPublico>;

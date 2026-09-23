@@ -128,7 +128,9 @@ const RECARGOS_COFFEE = [
 const VARIANTES_COFFEE: SeedServicio[] = COFFEE_BREAKS.flatMap((coffee) =>
   RECARGOS_COFFEE.map((recargo) => ({
     nombre: `${coffee.nombre} — ${recargo.sufijo}`,
-    descripcion: `${coffee.descripcion}. ${recargo.detalle}: ${recargo.porcentaje}% más por persona`,
+    // El porcentaje del recargo no va en la descripción: ya está aplicado en `precio`, y desde
+    // HU-07 la descripción viaja al canal público, que no publica ningún dato de precio.
+    descripcion: `${coffee.descripcion}. ${recargo.detalle}`,
     // Los precios base son enteros y los porcentajes, múltiplos de 10: el resultado es exacto.
     precio: (coffee.precio * (100 + recargo.porcentaje)) / 100,
     porPersona: true,
@@ -137,7 +139,9 @@ const VARIANTES_COFFEE: SeedServicio[] = COFFEE_BREAKS.flatMap((coffee) =>
 
 const DISPENSER: SeedServicio = {
   nombre: 'Dispenser con vasos descartables',
-  descripcion: 'Precio fijo, no por persona',
+  // "Precio fijo, no por persona" describía la forma de cobro, no el servicio: eso ya lo dice
+  // `porPersona: false` y no tiene sentido en la landing, donde no se muestran precios (HU-07).
+  descripcion: 'Dispenser de agua fría y caliente con vasos descartables',
   precio: 65250,
   porPersona: false,
 };
@@ -235,14 +239,21 @@ const ALMUERZO_CENA: SeedServicio[] = [
   },
 ];
 
-const SERVICIOS: SeedServicio[] = [
-  ...COFFEE_BREAKS,
-  ...VARIANTES_COFFEE,
-  DISPENSER,
-  ...DESAYUNOS,
-  ...DEGUSTACION,
-  ...LUNCH_COCKTAIL,
-  ...ALMUERZO_CENA,
+// La categoría es cómo el tarifario del cliente presenta el catálogo, y es también cómo la landing
+// lo agrupa (HU-07). Se deriva del grupo al que pertenece cada servicio en vez de repetirla en
+// cada literal: los grupos ya existen arriba y son la misma división.
+function conCategoria(servicios: SeedServicio[], categoria: string): SeedServicioCargable[] {
+  return servicios.map((servicio) => ({ ...servicio, categoria }));
+}
+
+type SeedServicioCargable = SeedServicio & { categoria: string };
+
+const SERVICIOS: SeedServicioCargable[] = [
+  ...conCategoria([...COFFEE_BREAKS, ...VARIANTES_COFFEE, DISPENSER], 'Coffee breaks'),
+  ...conCategoria(DESAYUNOS, 'Desayunos'),
+  ...conCategoria(DEGUSTACION, 'Degustación'),
+  ...conCategoria(LUNCH_COCKTAIL, 'Lunch y cocktail'),
+  ...conCategoria(ALMUERZO_CENA, 'Almuerzo y cena'),
 ];
 
 interface SeedUsuario {

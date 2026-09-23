@@ -37,10 +37,10 @@ enum Rol {
 |---|---|
 | `Usuario` | Credenciales: email único, hash de contraseña, rol. **Separada de `Cliente`.** |
 | `Cliente` | Datos comerciales: razón social o nombre, teléfono, correo, activo. Relación 1-1 opcional con `Usuario`. |
-| `Salon` | Nombre, capacidad máxima, superficie, precio de referencia jornada completa y media jornada. |
+| `Salon` | Nombre, capacidad máxima, superficie, precio de referencia jornada completa y media jornada. Contenido de la landing (HU-08): `visibleEnLanding` (booleano, default `true`) y `fotoUrl` (nullable, URL externa: el sistema no almacena archivos). Un salón no visible sigue disponible para uso interno. |
 | `Distribucion` | Pertenece a un salón. Nombre único por salón, capacidad ≤ capacidad del salón. |
-| `Servicio` | Nombre único, descripción, unidad de medida, precio, si se cobra por persona, si es tercerizado, activo. |
-| `Solicitud` | Llega del canal público. `clienteId` **nullable** desde el día 1. Guarda los datos de contacto que cargó el formulario, la fecha deseada y la cantidad estimada de personas. Puede descartarse sin convertirse en evento: `descartada` (booleano) y `eventoId` (nullable, 1-1) con el evento `EnConsulta` en que se convirtió. |
+| `Servicio` | Nombre único, descripción, unidad de medida, precio, si se cobra por persona, si es tercerizado, activo. Contenido de la landing: `categoria` (nullable, agrupa el catálogo como el tarifario) y `fotoUrl` (nullable). |
+| `Solicitud` | Llega del canal público. `clienteId` **nullable** desde el día 1. Guarda los datos de contacto que cargó el formulario, la fecha deseada y la cantidad estimada de personas. `salonId` (nullable) es el salón que el cliente eligió en la landing: una preferencia, no una reserva. Puede descartarse sin convertirse en evento: `descartada` (booleano) y `eventoId` (nullable, 1-1) con el evento `EnConsulta` en que se convirtió. |
 | `Evento` | Cliente, salón, distribución, fecha, horario desde/hasta (`inicio`/`fin`), cantidad de personas, estado, modalidad salón-restaurante. El salón es obligatorio desde `EnConsulta`; la distribución y el horario pueden completarse después (ver restricciones). |
 | `Presupuesto` | Pertenece a un evento. Estado, fecha de emisión, total. Un evento puede tener varios. |
 | `LineaPresupuesto` | Servicio, descripción, cantidad, precio unitario congelado, subtotal. El precio del salón va como una línea más, con servicio `null`. |
