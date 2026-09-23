@@ -1,3 +1,5 @@
+import type { ActualizarLandingSalon } from '@confluens/shared';
+
 import { prisma } from '../../lib/prisma.js';
 
 // Orden por capacidad descendente: así el primer elemento de la lista es siempre "la mayor
@@ -28,5 +30,43 @@ export async function obtenerSalonesPublicos() {
       distribuciones: true,
     },
     orderBy: { capacidadMaxima: 'desc' },
+  });
+}
+
+export async function obtenerSalonPorId(id: number) {
+  return prisma.salon.findUnique({ where: { id } });
+}
+
+// Actualiza el contenido de landing del salón y deja el rastro en audit_log (HU-08, criterio 4).
+// Las dos escrituras van en una transacción: un cambio publicado sin auditoría sería justamente
+// el agujero que la Definición de Terminado del sprint pide cerrar, así que o pasan las dos o
+// ninguna.
+//
+// Es la primera escritura de auditoría del repo. Queda acotada a este caso a propósito: HU-25
+// (Sprint 5) define el mecanismo general y va a querer absorber esto.
+//
+// valorAnterior y valorNuevo guardan solo los campos tocados, no el salón entero: lo que importa
+// auditar es el cambio, y así el diff se lee sin comparar dos objetos completos.
+export async function actualizarLanding(
+  id: number,
+  cambios: ActualizarLandingSalon,
+  anterior: { visibleEnLanding: boolean; fotoUrl: string | null },
+  usuarioId: number,
+) {
+  const camposTocados = Object.keys(cambios) as (keyof ActualizarLandingSalon)[];
+  const valorAnterior = Object.fromEntries(camposTocados.map((campo) => [campo, anterior[campo]]));
+
+  return prisma.$transaction(async (tx) => {
+    const salon = await tx.salon.update({ where: { id }, data: cambios });
+    await tx.auditLog.create({
+      data: {
+        usuarioId,
+        entidad: 'Salon',
+        entidadId: String(id),
+        valorAnterior,
+        valorNuevo: cambios,
+      },
+    });
+    return salon;
   });
 }

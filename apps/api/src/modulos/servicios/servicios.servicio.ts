@@ -39,3 +39,17 @@ export async function crearServicio(
 
   return repo.crear(datos);
 }
+
+// HU-08: asigna (o quita, con null) la foto del servicio en la landing. Igual que en salones, se
+// lee el estado anterior para poder auditarlo y se corta con 404 antes de escribir.
+export async function actualizarLandingServicio(
+  id: number,
+  fotoUrl: string | null,
+  usuarioId: number,
+  repo: ServiciosRepositorio = serviciosRepositorioReal,
+) {
+  const servicio = await repo.buscarPorId(id);
+  if (!servicio) throw ErrorApi.noEncontrado('No existe el servicio indicado');
+
+  return repo.actualizarLanding(id, fotoUrl, servicio.fotoUrl, usuarioId);
+}

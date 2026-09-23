@@ -1,7 +1,8 @@
 import request from 'supertest';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { crearApp } from '../../app.js';
+import { firmarToken, NOMBRE_COOKIE_SESION } from '../../lib/jwt.js';
 
 // Se mockea el repositorio (no la DB real): mismo criterio que auth.rutas.test.ts (HU-27), ver
 // ADR 0003 — ci.yml no levanta Postgres para el job de test. vi.mock se hoistea automáticamente
@@ -46,12 +47,20 @@ const bariloche = {
 vi.mock('./salones.repositorio.js', () => ({
   obtenerSalonesConDistribuciones: vi.fn(),
   obtenerSalonesPublicos: vi.fn(),
+  obtenerSalonPorId: vi.fn(),
+  actualizarLanding: vi.fn(),
 }));
 
-const { obtenerSalonesConDistribuciones, obtenerSalonesPublicos } =
-  await import('./salones.repositorio.js');
+const {
+  obtenerSalonesConDistribuciones,
+  obtenerSalonesPublicos,
+  obtenerSalonPorId,
+  actualizarLanding,
+} = await import('./salones.repositorio.js');
 const obtenerSalonesConDistribucionesMock = vi.mocked(obtenerSalonesConDistribuciones);
 const obtenerSalonesPublicosMock = vi.mocked(obtenerSalonesPublicos);
+const obtenerSalonPorIdMock = vi.mocked(obtenerSalonPorId);
+const actualizarLandingMock = vi.mocked(actualizarLanding);
 
 describe('GET /api/salones', () => {
   const app = crearApp();
@@ -136,5 +145,108 @@ describe('GET /api/salones/publicos', () => {
 
     expect(respuesta.body.data).toHaveLength(1);
     expect(respuesta.body.data.map((s: { nombre: string }) => s.nombre)).not.toContain('Bariloche');
+  });
+});
+
+// HU-08. La escritura en audit_log vive adentro de la transacción del repositorio, que acá está
+// mockeado (ADR 0003: sin Postgres en CI), así que lo que se verifica es que el servicio le pase al
+// repositorio el usuario de la sesión y los valores previos — que es la parte con lógica. Que la
+// fila se escriba en la misma transacción se ve en salones.repositorio.ts.
+describe('PATCH /api/salones/:id/landing', () => {
+  const app = crearApp();
+
+  const cookieAdmin = `${NOMBRE_COOKIE_SESION}=${firmarToken({
+    id: 9,
+    email: 'admin@confluens.test',
+    rol: 'ADMINISTRADOR_SISTEMA',
+  })}`;
+
+  beforeEach(() => {
+    obtenerSalonPorIdMock.mockReset();
+    actualizarLandingMock.mockReset();
+  });
+
+  it('con sesión de Administrador del Sistema responde 200 y despublica el salón', async () => {
+    obtenerSalonPorIdMock.mockResolvedValue(auditorio as never);
+    actualizarLandingMock.mockResolvedValue({ ...auditorio, visibleEnLanding: false } as never);
+
+    const respuesta = await request(app)
+      .patch('/api/salones/1/landing')
+      .set('Cookie', [cookieAdmin])
+      .send({ visibleEnLanding: false });
+
+    expect(respuesta.status).toBe(200);
+    expect(respuesta.body.data).toMatchObject({ nombre: 'Auditorio', visibleEnLanding: false });
+  });
+
+  it('registra el cambio con el usuario de la sesión y el valor anterior (criterio 4)', async () => {
+    obtenerSalonPorIdMock.mockResolvedValue(auditorio as never);
+    actualizarLandingMock.mockResolvedValue(auditorio as never);
+
+    await request(app)
+      .patch('/api/salones/1/landing')
+      .set('Cookie', [cookieAdmin])
+      .send({ fotoUrl: 'https://ejemplo.test/auditorio.jpg' });
+
+    expect(actualizarLandingMock).toHaveBeenCalledWith(
+      1,
+      { fotoUrl: 'https://ejemplo.test/auditorio.jpg' },
+      // El servicio le pasa el estado previo de los dos campos de landing; el repositorio recorta
+      // el valorAnterior a los que el PATCH tocó antes de escribir la fila de audit_log.
+      { visibleEnLanding: true, fotoUrl: null },
+      // El usuario auditado es el de la cookie de sesión, nunca uno que venga en el body.
+      9,
+    );
+  });
+
+  it('sin cookie de sesión responde 401 UNAUTHENTICATED', async () => {
+    const respuesta = await request(app)
+      .patch('/api/salones/1/landing')
+      .send({ visibleEnLanding: false });
+
+    expect(respuesta.status).toBe(401);
+    expect(respuesta.body.error.code).toBe('UNAUTHENTICATED');
+    expect(actualizarLandingMock).not.toHaveBeenCalled();
+  });
+
+  it('con otro rol responde 403 FORBIDDEN (criterio 5)', async () => {
+    const cookieRe = `${NOMBRE_COOKIE_SESION}=${firmarToken({
+      id: 1,
+      email: 're@confluens.test',
+      rol: 'RESPONSABLE_EVENTOS',
+    })}`;
+
+    const respuesta = await request(app)
+      .patch('/api/salones/1/landing')
+      .set('Cookie', [cookieRe])
+      .send({ visibleEnLanding: false });
+
+    expect(respuesta.status).toBe(403);
+    expect(respuesta.body.error.code).toBe('FORBIDDEN');
+    expect(actualizarLandingMock).not.toHaveBeenCalled();
+  });
+
+  it('con un id inexistente responde 404 NOT_FOUND', async () => {
+    obtenerSalonPorIdMock.mockResolvedValue(null);
+
+    const respuesta = await request(app)
+      .patch('/api/salones/99/landing')
+      .set('Cookie', [cookieAdmin])
+      .send({ visibleEnLanding: false });
+
+    expect(respuesta.status).toBe(404);
+    expect(respuesta.body.error.code).toBe('NOT_FOUND');
+    expect(actualizarLandingMock).not.toHaveBeenCalled();
+  });
+
+  it('con una fotoUrl que no es URL responde 400 VALIDATION_ERROR', async () => {
+    const respuesta = await request(app)
+      .patch('/api/salones/1/landing')
+      .set('Cookie', [cookieAdmin])
+      .send({ fotoUrl: 'no-es-una-url' });
+
+    expect(respuesta.status).toBe(400);
+    expect(respuesta.body.error.code).toBe('VALIDATION_ERROR');
+    expect(actualizarLandingMock).not.toHaveBeenCalled();
   });
 });

@@ -1,4 +1,12 @@
-import { obtenerSalonesConDistribuciones, obtenerSalonesPublicos } from './salones.repositorio.js';
+import type { ActualizarLandingSalon } from '@confluens/shared';
+
+import { ErrorApi } from '../../lib/errores.js';
+import {
+  actualizarLanding,
+  obtenerSalonesConDistribuciones,
+  obtenerSalonesPublicos,
+  obtenerSalonPorId,
+} from './salones.repositorio.js';
 
 // Repositorio con default (inyección de dependencias) para poder testear con un repo fake sin
 // tocar la base — mismo criterio que auth.servicio.ts (HU-27).
@@ -16,4 +24,24 @@ export async function listarSalones(repo = { obtenerSalonesConDistribuciones }) 
 // repositorio, no acá: son parte de la consulta, no de una regla que dependa de quién pregunta.
 export async function listarSalonesPublicos(repo = { obtenerSalonesPublicos }) {
   return repo.obtenerSalonesPublicos();
+}
+
+// HU-08: publicar/despublicar un salón y asignarle la foto de la landing. Acá sí hay lógica más
+// allá del CRUD, y es la que justifica el test de servicio: se lee el estado anterior para poder
+// auditarlo, y se corta con 404 antes de escribir si el salón no existe.
+export async function actualizarLandingSalon(
+  id: number,
+  cambios: ActualizarLandingSalon,
+  usuarioId: number,
+  repo = { obtenerSalonPorId, actualizarLanding },
+) {
+  const salon = await repo.obtenerSalonPorId(id);
+  if (!salon) throw ErrorApi.noEncontrado('No existe el salón indicado');
+
+  return repo.actualizarLanding(
+    id,
+    cambios,
+    { visibleEnLanding: salon.visibleEnLanding, fotoUrl: salon.fotoUrl },
+    usuarioId,
+  );
 }

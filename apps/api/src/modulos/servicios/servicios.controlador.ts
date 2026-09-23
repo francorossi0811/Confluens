@@ -1,7 +1,18 @@
-import type { CrearServicio, RespuestaExito, Servicio, ServicioPublico } from '@confluens/shared';
+import type {
+  ActualizarLandingServicio,
+  CrearServicio,
+  RespuestaExito,
+  Servicio,
+  ServicioPublico,
+} from '@confluens/shared';
 import type { Request, Response } from 'express';
 
-import { crearServicio, listarServicios, listarServiciosPublicos } from './servicios.servicio.js';
+import {
+  actualizarLandingServicio,
+  crearServicio,
+  listarServicios,
+  listarServiciosPublicos,
+} from './servicios.servicio.js';
 
 export async function listar(_req: Request, res: Response): Promise<void> {
   const servicios = await listarServicios();
@@ -25,4 +36,13 @@ export async function crear(req: Request, res: Response): Promise<void> {
   const servicio = await crearServicio(req.body as CrearServicio);
   const cuerpo: RespuestaExito<Servicio> = { data: servicio as unknown as Servicio };
   res.status(201).json(cuerpo);
+}
+
+// El usuario que audita sale de la sesión, nunca del body (ver salones.controlador.ts).
+export async function actualizarLanding(req: Request, res: Response): Promise<void> {
+  const id = Number(req.params['id']);
+  const { fotoUrl } = req.body as ActualizarLandingServicio;
+  const servicio = await actualizarLandingServicio(id, fotoUrl, req.usuario!.id);
+  const cuerpo: RespuestaExito<Servicio> = { data: servicio as unknown as Servicio };
+  res.json(cuerpo);
 }

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { crearApp } from '../../app.js';
 import { Decimal } from '../../generated/prisma/internal/prismaNamespace.js';
+import { firmarToken, NOMBRE_COOKIE_SESION } from '../../lib/jwt.js';
 
 // Se mockea el repositorio (no el servicio): así se ejercita la cadena real
 // rutas → controlador → servicio, y solo se reemplaza el punto de contacto con Prisma. Evita
@@ -11,14 +12,18 @@ vi.mock('./servicios.repositorio.js', () => ({
   listarActivos: vi.fn(),
   listarPublicos: vi.fn(),
   buscarPorNombre: vi.fn(),
+  buscarPorId: vi.fn(),
+  actualizarLanding: vi.fn(),
   crear: vi.fn(),
 }));
 
-const { listarActivos, listarPublicos, buscarPorNombre, crear } =
+const { listarActivos, listarPublicos, buscarPorNombre, buscarPorId, actualizarLanding, crear } =
   await import('./servicios.repositorio.js');
 const listarActivosMock = vi.mocked(listarActivos);
 const listarPublicosMock = vi.mocked(listarPublicos);
 const buscarPorNombreMock = vi.mocked(buscarPorNombre);
+const buscarPorIdMock = vi.mocked(buscarPorId);
+const actualizarLandingMock = vi.mocked(actualizarLanding);
 const crearMock = vi.mocked(crear);
 
 const app = crearApp();
@@ -137,5 +142,109 @@ describe('POST /api/servicios', () => {
 
     expect(respuesta.status).toBe(400);
     expect(respuesta.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
+
+// HU-08. Mismos permisos y misma auditoría que el PATCH de salones (ver salones.rutas.test.ts para
+// el detalle de por qué la fila de audit_log se verifica por la llamada al repositorio).
+describe('PATCH /api/servicios/:id/landing', () => {
+  const cookieAdmin = `${NOMBRE_COOKIE_SESION}=${firmarToken({
+    id: 9,
+    email: 'admin@confluens.test',
+    rol: 'ADMINISTRADOR_SISTEMA',
+  })}`;
+
+  beforeEach(() => {
+    buscarPorIdMock.mockReset();
+    actualizarLandingMock.mockReset();
+  });
+
+  it('con sesión de Administrador del Sistema responde 200 y guarda la foto', async () => {
+    buscarPorIdMock.mockResolvedValue(servicioDb);
+    actualizarLandingMock.mockResolvedValue({
+      ...servicioDb,
+      fotoUrl: 'https://ejemplo.test/coffee.jpg',
+    });
+
+    const respuesta = await request(app)
+      .patch('/api/servicios/1/landing')
+      .set('Cookie', [cookieAdmin])
+      .send({ fotoUrl: 'https://ejemplo.test/coffee.jpg' });
+
+    expect(respuesta.status).toBe(200);
+    expect(respuesta.body.data).toMatchObject({ fotoUrl: 'https://ejemplo.test/coffee.jpg' });
+    expect(actualizarLandingMock).toHaveBeenCalledWith(
+      1,
+      'https://ejemplo.test/coffee.jpg',
+      null,
+      9,
+    );
+  });
+
+  it('con fotoUrl null quita la foto', async () => {
+    buscarPorIdMock.mockResolvedValue({ ...servicioDb, fotoUrl: 'https://ejemplo.test/vieja.jpg' });
+    actualizarLandingMock.mockResolvedValue(servicioDb);
+
+    const respuesta = await request(app)
+      .patch('/api/servicios/1/landing')
+      .set('Cookie', [cookieAdmin])
+      .send({ fotoUrl: null });
+
+    expect(respuesta.status).toBe(200);
+    expect(actualizarLandingMock).toHaveBeenCalledWith(
+      1,
+      null,
+      'https://ejemplo.test/vieja.jpg',
+      9,
+    );
+  });
+
+  it('sin cookie de sesión responde 401 UNAUTHENTICATED', async () => {
+    const respuesta = await request(app).patch('/api/servicios/1/landing').send({ fotoUrl: null });
+
+    expect(respuesta.status).toBe(401);
+    expect(respuesta.body.error.code).toBe('UNAUTHENTICATED');
+    expect(actualizarLandingMock).not.toHaveBeenCalled();
+  });
+
+  it('con otro rol responde 403 FORBIDDEN (criterio 5)', async () => {
+    const cookieRe = `${NOMBRE_COOKIE_SESION}=${firmarToken({
+      id: 1,
+      email: 're@confluens.test',
+      rol: 'RESPONSABLE_EVENTOS',
+    })}`;
+
+    const respuesta = await request(app)
+      .patch('/api/servicios/1/landing')
+      .set('Cookie', [cookieRe])
+      .send({ fotoUrl: null });
+
+    expect(respuesta.status).toBe(403);
+    expect(respuesta.body.error.code).toBe('FORBIDDEN');
+    expect(actualizarLandingMock).not.toHaveBeenCalled();
+  });
+
+  it('con un id inexistente responde 404 NOT_FOUND', async () => {
+    buscarPorIdMock.mockResolvedValue(null);
+
+    const respuesta = await request(app)
+      .patch('/api/servicios/99/landing')
+      .set('Cookie', [cookieAdmin])
+      .send({ fotoUrl: null });
+
+    expect(respuesta.status).toBe(404);
+    expect(respuesta.body.error.code).toBe('NOT_FOUND');
+    expect(actualizarLandingMock).not.toHaveBeenCalled();
+  });
+
+  it('con una fotoUrl que no es URL responde 400 VALIDATION_ERROR', async () => {
+    const respuesta = await request(app)
+      .patch('/api/servicios/1/landing')
+      .set('Cookie', [cookieAdmin])
+      .send({ fotoUrl: 'no-es-una-url' });
+
+    expect(respuesta.status).toBe(400);
+    expect(respuesta.body.error.code).toBe('VALIDATION_ERROR');
+    expect(actualizarLandingMock).not.toHaveBeenCalled();
   });
 });

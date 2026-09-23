@@ -44,3 +44,11 @@ export const esquemaServicioPublico = z.object({
   fotoUrl: z.url().nullable(),
 });
 export type ServicioPublico = z.infer<typeof esquemaServicioPublico>;
+
+// Body de PATCH /servicios/:id/landing (HU-08). El servicio solo expone la foto: a diferencia del
+// salón, no se despublica de a uno — el catálogo público se filtra por "activo", que es el estado
+// del servicio en el negocio y no una decisión de la landing.
+export const esquemaActualizarLandingServicio = z.object({
+  fotoUrl: z.url('Ingresá una URL válida').nullable(),
+});
+export type ActualizarLandingServicio = z.infer<typeof esquemaActualizarLandingServicio>;

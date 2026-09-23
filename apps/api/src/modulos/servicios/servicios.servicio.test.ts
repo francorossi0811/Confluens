@@ -22,6 +22,12 @@ function repositorioFake(servicios: Servicio[]): ServiciosRepositorio {
           fotoUrl,
         })),
     buscarPorNombre: async (nombre) => servicios.find((s) => s.nombre === nombre) ?? null,
+    buscarPorId: async (id) => servicios.find((s) => s.id === id) ?? null,
+    actualizarLanding: async (id, fotoUrl) => {
+      const servicio = servicios.find((s) => s.id === id)!;
+      servicio.fotoUrl = fotoUrl;
+      return servicio;
+    },
     crear: async (datos) => {
       const nuevo: Servicio = {
         id: servicios.length + 1,

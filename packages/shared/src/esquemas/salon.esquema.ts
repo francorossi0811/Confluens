@@ -40,3 +40,17 @@ export const esquemaSalonPublico = z.object({
   distribuciones: z.array(esquemaDistribucion),
 });
 export type SalonPublico = z.infer<typeof esquemaSalonPublico>;
+
+// Body de PATCH /salones/:id/landing (HU-08). Son los dos únicos campos del salón que administra
+// el Administrador del Sistema: qué se publica y con qué foto. Los demás datos del salón
+// (capacidad, superficie, precios) los edita el Responsable de Eventos en otra historia.
+// Ambos son opcionales porque se puede cambiar solo la visibilidad o solo la foto, pero se exige
+// al menos uno: un PATCH vacío no tiene efecto y dejaría una fila de auditoría sin cambio real.
+// fotoUrl acepta null explícito: así se despega una foto, que no es lo mismo que no mandar nada.
+export const esquemaActualizarLandingSalon = z
+  .object({
+    visibleEnLanding: z.boolean().optional(),
+    fotoUrl: z.url('Ingresá una URL válida').nullable().optional(),
+  })
+  .refine((datos) => Object.keys(datos).length > 0, 'No hay nada para actualizar');
+export type ActualizarLandingSalon = z.infer<typeof esquemaActualizarLandingSalon>;

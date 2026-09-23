@@ -49,9 +49,38 @@ export async function crear(datos: CrearServicio) {
   });
 }
 
+export async function buscarPorId(id: number) {
+  return prisma.servicio.findUnique({ where: { id } });
+}
+
+// Asigna la foto del servicio en la landing y audita el cambio en la misma transacción, con el
+// mismo criterio que salones.repositorio.ts (HU-08, criterio 4).
+export async function actualizarLanding(
+  id: number,
+  fotoUrl: string | null,
+  anterior: string | null,
+  usuarioId: number,
+) {
+  return prisma.$transaction(async (tx) => {
+    const servicio = await tx.servicio.update({ where: { id }, data: { fotoUrl } });
+    await tx.auditLog.create({
+      data: {
+        usuarioId,
+        entidad: 'Servicio',
+        entidadId: String(id),
+        valorAnterior: { fotoUrl: anterior },
+        valorNuevo: { fotoUrl },
+      },
+    });
+    return servicio;
+  });
+}
+
 export type ServiciosRepositorio = {
   listarActivos: typeof listarActivos;
   listarPublicos: typeof listarPublicos;
   buscarPorNombre: typeof buscarPorNombre;
+  buscarPorId: typeof buscarPorId;
   crear: typeof crear;
+  actualizarLanding: typeof actualizarLanding;
 };
