@@ -1,11 +1,15 @@
 import type { Solicitud } from '@confluens/shared';
 import { useState } from 'react';
 
-import { useSesion } from '@/hooks/use-sesion';
+import { EncabezadoSitio } from '@/components/EncabezadoSitio';
+import { useCerrarSesion, useSesion } from '@/hooks/use-sesion';
 import { DetalleEvento } from '@/paginas/eventos/DetalleEvento';
 import { TomarConsulta } from '@/paginas/eventos/TomarConsulta';
+import { AccesoCliente } from '@/paginas/auth/AccesoCliente';
 import { IniciarSesion } from '@/paginas/auth/IniciarSesion';
 import { Panel } from '@/paginas/panel/Panel';
+import { CotizarEvento, type ResultadoCotizacion } from '@/paginas/presupuestos/CotizarEvento';
+import { PresupuestoEstimado } from '@/paginas/presupuestos/PresupuestoEstimado';
 import { AdministrarLanding } from '@/paginas/salones/AdministrarLanding';
 import { RegistrarServicio } from '@/paginas/servicios/RegistrarServicio';
 import { Landing } from '@/paginas/solicitudes/Landing';
@@ -13,6 +17,8 @@ import { ListadoSolicitudes } from '@/paginas/solicitudes/ListadoSolicitudes';
 
 type Vista =
   | { tipo: 'publica' }
+  | { tipo: 'cotizar'; salonId?: number }
+  | { tipo: 'presupuesto-generado'; resultado: ResultadoCotizacion }
   | { tipo: 'interna' }
   | { tipo: 'servicios' }
   | { tipo: 'landing-admin' }
@@ -26,7 +32,28 @@ type Vista =
 // siguen sin rutear (eso es HU-28), así que no se los toca acá.
 export default function App() {
   const { data: sesion, isLoading } = useSesion();
+  const cerrarSesion = useCerrarSesion();
   const [vista, setVista] = useState<Vista>({ tipo: 'publica' });
+  // Modal de acceso del cliente, con el salón desde el que se abrió (criterio 3 de HU-07).
+  const [acceso, setAcceso] = useState<{ abierto: boolean; salonId?: number }>({
+    abierto: false,
+  });
+  const sesionCliente = sesion?.rol === 'CLIENTE' ? sesion : null;
+
+  function irA(nueva: Vista) {
+    setVista(nueva);
+    window.scrollTo({ top: 0 });
+  }
+
+  // "Consultá para hacer tu evento": el cotizador con precios pide la cuenta del cliente. Con la
+  // sesión ya iniciada va directo; si no, abre el modal y sigue al cotizador al ingresar.
+  function cotizar(salonId?: number) {
+    if (sesionCliente) {
+      irA({ tipo: 'cotizar', salonId });
+    } else {
+      setAcceso({ abierto: true, salonId });
+    }
+  }
 
   // Mientras se resuelve GET /auth/yo no se sabe todavía si hay sesión: mostrar
   // login prematuramente causaría un parpadeo (login → panel) en cada recarga de
@@ -39,23 +66,55 @@ export default function App() {
     );
   }
 
-  if (vista.tipo === 'publica') {
+  if (
+    vista.tipo === 'publica' ||
+    vista.tipo === 'cotizar' ||
+    vista.tipo === 'presupuesto-generado'
+  ) {
+    // Sin sesión de cliente (por ejemplo, después de "Salir") el cotizador vuelve a la landing.
+    const vistaPublica = sesionCliente ? vista : { tipo: 'publica' as const };
     return (
       <div className="min-h-screen bg-background text-foreground">
-        <div className="flex justify-end border-b bg-card p-2 text-xs">
-          <button
-            className="underline underline-offset-2"
-            onClick={() => setVista({ tipo: 'interna' })}
-          >
-            Acceso interno
-          </button>
-        </div>
-        <Landing />
+        <EncabezadoSitio
+          enLanding={vistaPublica.tipo === 'publica'}
+          sesionCliente={sesionCliente}
+          onInicio={() => irA({ tipo: 'publica' })}
+          onCotizar={() => cotizar()}
+          onCerrarSesion={() =>
+            cerrarSesion.mutate(undefined, { onSuccess: () => irA({ tipo: 'publica' }) })
+          }
+        />
+        {vistaPublica.tipo === 'publica' && (
+          <Landing onCotizar={cotizar} onAccesoPersonal={() => irA({ tipo: 'interna' })} />
+        )}
+        {vistaPublica.tipo === 'cotizar' && (
+          <CotizarEvento
+            key={vistaPublica.salonId ?? 'sin-salon'}
+            salonInicialId={vistaPublica.salonId}
+            onGenerado={(resultado) => irA({ tipo: 'presupuesto-generado', resultado })}
+          />
+        )}
+        {vistaPublica.tipo === 'presupuesto-generado' && (
+          <PresupuestoEstimado
+            resultado={vistaPublica.resultado}
+            onOtro={() => irA({ tipo: 'cotizar' })}
+            onInicio={() => irA({ tipo: 'publica' })}
+          />
+        )}
+        <AccesoCliente
+          abierto={acceso.abierto}
+          onCerrar={() => setAcceso({ abierto: false })}
+          onIngreso={() => {
+            setAcceso({ abierto: false });
+            irA({ tipo: 'cotizar', salonId: acceso.salonId });
+          }}
+        />
       </div>
     );
   }
 
-  if (!sesion) {
+  // Una sesión de cliente no da acceso al canal interno: se pide el login del personal.
+  if (!sesion || sesion.rol === 'CLIENTE') {
     return (
       <div className="min-h-screen bg-background text-foreground">
         <div className="flex justify-start border-b bg-card p-2 text-xs">
